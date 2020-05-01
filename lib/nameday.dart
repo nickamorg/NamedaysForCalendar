@@ -7,6 +7,8 @@ class NameDay {
 		this.date = date;
 	}
 
+	@override    
+	bool operator ==(Object other) => other is NameDay && other.date == this.date && other.name == this.name;
 }
 
 class NameDays {
@@ -33,5 +35,12 @@ class NameDays {
 		nameDaysList.add(new NameDay("Άγγελος",   '08-11-' + year));
 		nameDaysList.add(new NameDay("Γρηγόρης",  '14-11-' + year));
 		nameDaysList.add(new NameDay("Νικόλαος",  '06-12-' + year));
+
+		nameDaysList.sort((a, b) {
+			List<int> date1 = a.date.split("-").map(int.parse).toList();
+			List<int> date2 = b.date.split("-").map(int.parse).toList();
+
+			return date1[1].compareTo(date2[1]) + date1[0].compareTo(date2[0]);
+		});	
 	}
 }

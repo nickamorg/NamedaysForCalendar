@@ -60,6 +60,15 @@ class DetailScreen extends StatelessWidget {
 		print("Lala");
 		CalendarPlugin deviceCalendarPlugin = new CalendarPlugin();
 
+		deviceCalendarPlugin.getEvents(calendarId:calendarID).then((val) {
+			val.forEach((event) {
+				if (event.title.contains("🎂 Ονομαστική Εορτή: ")) {
+					print("TO BE DELETED");
+					deviceCalendarPlugin.deleteEvent(calendarId: calendarID, eventId: event.eventId);
+				}
+			});
+		});
+
 		CalendarEvent event = new CalendarEvent();
 		
 		print("SIZE  " + selectedNameDays.length.toString());
