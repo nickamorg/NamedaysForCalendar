@@ -54,6 +54,7 @@ class NameDays {
 
 class RandomWordsState extends State<RandomWords> {
 	final List<NameDay> nameDays = (new NameDays()).nameDays;
+	final Set<NameDay> selectedNameDays = Set<NameDay>();
 	final _biggerFont = const TextStyle(fontSize: 18.0);
 	String calendarID;
 
@@ -62,9 +63,74 @@ class RandomWordsState extends State<RandomWords> {
 		return Scaffold(
 			appBar: AppBar(
 			title: Text('Startup Name Generator'),
+			actions: <Widget>[      // Add 3 lines from here...
+				IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
+			],
 			),
 			body: _buildSuggestions(),
 		);
+	}
+
+	void _pushSaved() {
+	Navigator.of(context).push(
+		MaterialPageRoute<void>(
+		builder: (BuildContext context) {
+			final Iterable<ListTile> tiles = selectedNameDays.map(
+				(NameDay pair) {
+					return ListTile(
+					title: Text(
+						pair.name,
+						style: _biggerFont,
+					),
+					trailing: Text(
+						pair.date
+					),
+					);
+				},
+			);
+			final List<Widget> divided = ListTile
+			.divideTiles(
+				context: context,
+				tiles: tiles,
+			)
+				.toList();
+
+			return Scaffold(
+				appBar: AppBar(
+					title: Text('Επιλεγμένες εορτές'),
+				),
+				// body: ListView(children: divided),
+				body: Column(
+					children:[
+						
+						Expanded(
+							child: ListView(children: divided)
+						),
+						SizedBox(height: 10),
+						FlatButton(
+	  						shape: new RoundedRectangleBorder(
+								borderRadius: new BorderRadius.circular(18.0),
+
+							// fill in required params
+							),
+							color: Colors.blue,
+							textColor: Colors.white,
+							padding: EdgeInsets.all(16.0),
+							
+							onPressed: () => {
+							},
+
+							child: Text(
+								'Προσθήκη στο ημερολόγιο',
+								style: TextStyle(fontSize: 20)
+							),	
+						),
+						SizedBox(height: 10),
+					])
+			);                       // ... to here.
+		},
+		),
+	);
 	}
 
 	Widget _buildSuggestions() {
@@ -78,10 +144,11 @@ class RandomWordsState extends State<RandomWords> {
 	}
 
 	Widget _buildRow(NameDay pair) {
+		final bool alreadySaved = selectedNameDays.contains(pair);
 
 		return ListTile(
 			leading: Checkbox(
-				value: false,
+				value: alreadySaved,
 				onChanged: null,
 			),
 			title: Text(
@@ -93,6 +160,11 @@ class RandomWordsState extends State<RandomWords> {
 			),
 			onTap: () {
 				setState(() {
+					if (alreadySaved) {
+					selectedNameDays.remove(pair);
+					} else { 
+					selectedNameDays.add(pair); 
+					} 
 				});
 			},     
 		);
