@@ -20,12 +20,53 @@ class MyApp extends StatelessWidget {
 
 class RandomWordsState extends State<RandomWords> {
 	final NameDays nameDays = new NameDays();
-	final List<NameDay> selectedNameDays = new NameDays().nameDaysList;
+	List<NameDay> selectedNameDays;
 	final _biggerFont = const TextStyle(fontSize: 18.0);
 	String calendarID;
 
+	@override
+    void initState() {
+		super.initState();
+		
+		new CalendarPlugin().getCalendars().then((calendars) { 
+
+			calendars.forEach((val) { 
+				if(val.name.contains("@gmail.com")) calendarID = val.id;
+			});
+
+			print("Calendar ID   " + calendarID);
+
+			new CalendarPlugin().getEvents(calendarId:calendarID).then((val) {
+
+				setState(() {
+					selectedNameDays = new List<NameDay>();
+					val.forEach((event) {
+						if (event.title.contains("🎂 Ονομαστική Εορτή: ")) {
+							String name = event.title.split(" ")[event.title.split(" ").length - 1];
+							String date = (event.startDate.day < 10? "0" : "") + event.startDate.day.toString() + "-" + (event.startDate.month < 10? "0" : "") + event.startDate.month.toString() + "-" + event.startDate.year.toString();
+							print("Εορτάζων: " + name);
+							selectedNameDays.add(new NameDay(name, date));
+							print(selectedNameDays[0].name + "  " + selectedNameDays[0].date);
+						} else {
+							print("other event");
+						}
+					});
+				});
+			});
+		});
+	}
+
   	@override
 	Widget build(BuildContext context) {
+		if(selectedNameDays == null) {
+			return new Container(
+				margin: const EdgeInsets.all(10.0),
+				color: Colors.blue,
+				width: 48.0,
+				height: 48.0,
+			);
+		}
+		
 		return Scaffold(
 			appBar: AppBar(
 				title: Text('Εορτολόγιο'),
