@@ -10,23 +10,22 @@ class DetailScreen extends StatelessWidget {
 
 	@override
 	Widget build(BuildContext context) {
-		// Use the Todo to create the UI.
 		return Scaffold(
-		appBar: AppBar(
-			title: Text("Επιλεγμένες Eορτές"),
-		),
+			appBar: AppBar(
+				title: Text("Επιλεγμένες Eορτές"),
+			),
 			body: Column(
 				children:[
 					Expanded(
 						child: ListView(children: selectedNameDays.map(
 							(NameDay pair) {
 								return ListTile(
-								title: Text(
-									pair.name,
-								),
-								trailing: Text(
-									pair.date
-								),
+									title: Text(
+										pair.name,
+									),
+									trailing: Text(
+										pair.date
+									),
 								);
 							}).toList()
 						)
@@ -35,15 +34,14 @@ class DetailScreen extends StatelessWidget {
 					FlatButton(
 						shape: new RoundedRectangleBorder(
 							borderRadius: new BorderRadius.circular(18.0),
-
-						// fill in required params
 						),
 						color: Colors.blue,
 						textColor: Colors.white,
 						padding: EdgeInsets.all(16.0),
 						
 						onPressed: () => {
-							addNamedaysToCalendar()
+							addNamedaysToCalendar(),
+							calendarSyncDialog(context)
 						},
 
 						child: Text(
@@ -57,13 +55,11 @@ class DetailScreen extends StatelessWidget {
 	}
 
 	addNamedaysToCalendar() {
-		print("Lala");
 		CalendarPlugin deviceCalendarPlugin = new CalendarPlugin();
 
 		deviceCalendarPlugin.getEvents(calendarId:calendarID).then((val) {
 			val.forEach((event) {
 				if (event.title.contains("🎂 Ονομαστική Εορτή: ")) {
-					print("TO BE DELETED");
 					deviceCalendarPlugin.deleteEvent(calendarId: calendarID, eventId: event.eventId);
 				}
 			});
@@ -71,7 +67,6 @@ class DetailScreen extends StatelessWidget {
 
 		CalendarEvent event = new CalendarEvent();
 		
-		print("SIZE  " + selectedNameDays.length.toString());
 		selectedNameDays.forEach((nameday) {
 			event.title = "🎂 Ονομαστική Εορτή: " + nameday.name;
 			event.description = "Σήμερα γιορτάζει ο " + nameday.name + ". Ευχηθείτε του Xρόνια Πολλά.";
@@ -80,17 +75,39 @@ class DetailScreen extends StatelessWidget {
 			int month = int.parse(nameday.date.split("-")[1]);
 			int day = int.parse(nameday.date.split("-")[0]);
 
-			print(year.toString() + " " + month.toString() + " " + day.toString());
-
 			event.startDate = new DateTime(year, month, day, 0, 0, 0);
 			event.endDate = new DateTime(year, month, day, 0, 0, 0);
-			
 			event.isAllDay = true;
 			
-			deviceCalendarPlugin.createEvent(calendarId: calendarID, event: event).then((val) {
-				print(val);
-			});
+			deviceCalendarPlugin.createEvent(calendarId: calendarID, event: event);
 		});
 	}
 
+	void calendarSyncDialog(BuildContext context) {
+		showDialog<bool>(
+		context: context,
+		builder: (BuildContext context) {
+			return AlertDialog(
+			title: Text('Επιτυχής Συγχρονισμός', textAlign: TextAlign.center,),
+			titleTextStyle: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 20),
+			
+			content: SingleChildScrollView(
+			child: ListBody(
+				children: <Widget>[
+					Text('\n\nΟι επιλεγμένες εορτές προστέθηκαν ως γεγονότα στο ημερολόγιο, ενώ αφαιρέθηκαν όλες οι προηγούμενες καταχωρήσεις.'),
+				],
+			),
+			),
+			actions: <Widget>[
+				FlatButton(
+				child: const Text('OK'),
+				onPressed: () {
+					Navigator.of(context).pop(true);
+				},
+				),
+			],
+			);
+		},
+		);
+	}
 }

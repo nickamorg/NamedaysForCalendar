@@ -1,6 +1,3 @@
-// Copyright 2018 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
 import 'package:flutter/material.dart';
 import 'package:manage_calendar_events/manage_calendar_events.dart';
 import 'nameday.dart';
@@ -29,26 +26,19 @@ class RandomWordsState extends State<RandomWords> {
 		super.initState();
 		
 		new CalendarPlugin().getCalendars().then((calendars) { 
-
 			calendars.forEach((val) { 
 				if(val.name.contains("@gmail.com")) calendarID = val.id;
 			});
 
-			print("Calendar ID   " + calendarID);
-
 			new CalendarPlugin().getEvents(calendarId:calendarID).then((val) {
-
 				setState(() {
 					selectedNameDays = new List<NameDay>();
 					val.forEach((event) {
 						if (event.title.contains("🎂 Ονομαστική Εορτή: ")) {
 							String name = event.title.split(" ")[event.title.split(" ").length - 1];
 							String date = (event.startDate.day < 10? "0" : "") + event.startDate.day.toString() + "-" + (event.startDate.month < 10? "0" : "") + event.startDate.month.toString() + "-" + event.startDate.year.toString();
-							print("Εορτάζων: " + name);
-							selectedNameDays.add(new NameDay(name, date));
-							print(selectedNameDays[0].name + "  " + selectedNameDays[0].date);
-						} else {
-							print("other event");
+
+							selectedNameDays.add(new NameDay(name: name, date: date));
 						}
 					});
 				});
@@ -58,7 +48,7 @@ class RandomWordsState extends State<RandomWords> {
 
   	@override
 	Widget build(BuildContext context) {
-		if(selectedNameDays == null) {
+		if (selectedNameDays == null) {
 			return new Container(
 				margin: const EdgeInsets.all(10.0),
 				color: Colors.blue,
@@ -70,15 +60,15 @@ class RandomWordsState extends State<RandomWords> {
 		return Scaffold(
 			appBar: AppBar(
 				title: Text('Εορτολόγιο'),
-				actions: <Widget>[      // Add 3 lines from here...
-					IconButton(icon: Icon(Icons.add), onPressed: _pushSaved),
+				actions: <Widget>[
+					IconButton(icon: Icon(Icons.add), onPressed: selectNamedays),
 				],
 			),
-			body: _buildSuggestions(),
+			body: loadNamedays(),
 		);
 	}
 
-	void _pushSaved() {
+	void selectNamedays() {
 		Navigator.push(
 			context,
 			MaterialPageRoute(
@@ -89,42 +79,74 @@ class RandomWordsState extends State<RandomWords> {
 	
 	}
 
-	Widget _buildSuggestions() {
+	Widget loadNamedays() {
 		return ListView.builder(
 			padding: const EdgeInsets.all(1.0),
 			itemCount: nameDays.nameDaysList.length,
 				itemBuilder: (BuildContext ctxt, int index) {
-					return _buildRow(nameDays.nameDaysList[index]);
+					return loadNameday(nameDays.nameDaysList[index]);
 				}
 			);
 	}
 
-	Widget _buildRow(NameDay pair) {
-		print("Build row");
+	Widget loadNameday(NameDay pair) {
 		final bool alreadySaved = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
 
-		return ListTile(
-			leading: Checkbox(
-				value: alreadySaved,
-				onChanged: null,
-			),
-			title: Text(
-				pair.name,
-				style: _biggerFont,
-			),
-			trailing: Text(
-				pair.date
-			),
-			onTap: () {
-				setState(() {
-					if (alreadySaved) {
-						selectedNameDays.remove(pair);
-					} else {
-						selectedNameDays.add(pair); 
-					} 
-				});
-			},     
+		if (pair.hypocorisms != null) {
+			return new Tooltip(
+			padding: const EdgeInsets.all(10.0),
+			margin:  const EdgeInsets.all(20.0),
+			textStyle:  const TextStyle(color: Colors.black),
+			decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.black, width: 3.0), borderRadius: BorderRadius.all(Radius.circular(6.0))),
+			message: pair.hypocorisms,
+			child: ListTile(
+				leading: Checkbox(
+					value: alreadySaved,
+					onChanged: null,
+				),
+				title: Text(
+					pair.name,
+					style: _biggerFont,
+				),
+				trailing: Text(
+					pair.date
+				),
+				onTap: () {
+					setState(() {
+						if (alreadySaved) {
+							selectedNameDays.remove(pair);
+						} else {
+							selectedNameDays.add(pair); 
+						} 
+					});
+				},
+			)
 		);
+		} else {
+			return new ListTile(
+				leading: Checkbox(
+					value: alreadySaved,
+					onChanged: null,
+				),
+				title: Text(
+					pair.name,
+					style: _biggerFont,
+				),
+				trailing: Text(
+					pair.date
+				),
+				onTap: () {
+					setState(() {
+						if (alreadySaved) {
+							selectedNameDays.remove(pair);
+						} else {
+							selectedNameDays.add(pair); 
+						} 
+					});
+				},
+		);
+		}
+		
 	}
 }
 
