@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manage_calendar_events/manage_calendar_events.dart';
 import 'nameday.dart';
-import 'overview_screen.dart';
 import 'selection_screen.dart';
 
 void main() => runApp(MyApp());
@@ -18,7 +17,7 @@ class MyApp extends StatelessWidget {
 
 class RandomWordsState extends State<RandomWords> {
 	List<NameDay> savedNamedays = new List<NameDay>();
-	// List<NameDay> selectedNameDays;
+	List<NameDay> selectedNameDays = new List<NameDay>();
 	final _biggerFont = const TextStyle(fontSize: 18.0);
 	String calendarID;
 
@@ -39,7 +38,7 @@ class RandomWordsState extends State<RandomWords> {
 							String name = event.title.split(" ")[event.title.split(" ").length - 1];
 							String date = (event.startDate.day < 10? "0" : "") + event.startDate.day.toString() + "-" + (event.startDate.month < 10? "0" : "") + event.startDate.month.toString() + "-" + event.startDate.year.toString();
 
-							savedNamedays.add(new NameDay(name: name, date: date));
+							savedNamedays.add(new NameDay(name: name, date: date, saved: true, eventID: event.eventId));
 						}
 					});
 				});
@@ -64,32 +63,37 @@ class RandomWordsState extends State<RandomWords> {
 			),
 			body: loadNamedays(),
 			floatingActionButton: Stack(
-			children: <Widget>[
-				Padding(padding: EdgeInsets.only(left:31),
-					child: Align(
-						alignment: Alignment.bottomLeft,
-						child: Visibility(
-							child:FloatingActionButton(
-							backgroundColor: Colors.red,
-							onPressed: null,
-							child: Icon(Icons.delete),),
-							visible: false, // set it to false
-						)
-					),
-				),
-
-				Align(
-					alignment: Alignment.bottomRight,
-					child: FloatingActionButton(
-						onPressed: (() {
-							Navigator.push(
-								context,
-								MaterialPageRoute(
-									builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNamedays,
+				children: <Widget>[
+					Padding(padding: EdgeInsets.only(left:31),
+						child: Align(
+							alignment: Alignment.bottomLeft,
+							child: Visibility(
+								child:FloatingActionButton(
+									backgroundColor: Colors.red,
+									onPressed: () {
+										setState(() {
+											deleteNamedayEvents();
+										});
+									},
+									child: Icon(Icons.delete),
 								),
-							));
-						}),
-					child: Icon(Icons.add)),
+								visible: selectedNameDays.length > 0,
+							)
+						),
+					),
+
+					Align(
+						alignment: Alignment.bottomRight,
+						child: FloatingActionButton(
+							onPressed: (() {
+								Navigator.push(
+									context,
+									MaterialPageRoute(
+										builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNamedays,
+									),
+								));
+							}),
+						child: Icon(Icons.add)),
 					),
 				],
 			)
@@ -100,62 +104,98 @@ class RandomWordsState extends State<RandomWords> {
 		return ListView.builder(
 			padding: const EdgeInsets.all(1.0),
 			itemCount: savedNamedays.length,
-				itemBuilder: (BuildContext ctxt, int index) {
-					return loadNameday(savedNamedays[index]);
-				}
-			);
+			itemBuilder: (BuildContext ctxt, int index) {
+				return loadNameday(savedNamedays[index]);
+			}
+		);
 	}
 
 	Widget loadNameday(NameDay pair) {
-		// final bool alreadySaved = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
+		final bool alreadySaved = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
 
 		if (pair.hypocorisms != null) {
 			return new Tooltip(
-			padding: const EdgeInsets.all(10.0),
-			margin:  const EdgeInsets.all(20.0),
-			textStyle:  const TextStyle(color: Colors.black),
-			decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.black, width: 3.0), borderRadius: BorderRadius.all(Radius.circular(6.0))),
-			message: pair.hypocorisms,
-			child: ListTile(
-				title: Text(
-					pair.name,
-					style: _biggerFont,
-				),
-				trailing: Text(
-					pair.date
-				),
-				onTap: () {
-					setState(() {
-						// if (alreadySaved) {
-						// 	selectedNameDays.remove(pair);
-						// } else {
-						// 	selectedNameDays.add(pair); 
-						// } 
-					});
-				},
-			)
-		);
+				padding: const EdgeInsets.all(10.0),
+				margin: const EdgeInsets.all(20.0),
+				textStyle: const TextStyle(color: Colors.black),
+				decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.black, width: 3.0), borderRadius: BorderRadius.all(Radius.circular(6.0))),
+				message: pair.hypocorisms,
+				child: ListTile(
+					title: Text(
+						pair.name,
+						style: _biggerFont,
+					),
+					trailing: Text(
+						pair.date
+					),
+					onLongPress: () {
+						setState(() {
+							if (alreadySaved) {
+								selectedNameDays.remove(pair);
+							} else {
+								selectedNameDays.add(pair); 
+							} 
+						});
+					},
+
+					onTap: () {
+						if (selectedNameDays.length > 0) {
+							setState(() {
+								if (alreadySaved) {
+									selectedNameDays.remove(pair);
+								} else {
+									selectedNameDays.add(pair); 
+								} 
+							});
+						}
+					},
+				)
+			);
 		} else {
-			return new ListTile(
-				title: Text(
-					pair.name,
-					style: _biggerFont,
+			return new Container(
+				child: ListTile(
+					title: Text(
+						pair.name,
+						style: TextStyle(color: alreadySaved != true ? Colors.black : Colors.white, fontSize: 18),
+					),
+					trailing: Text(
+						pair.date,
+						style: TextStyle(color: alreadySaved != true ? Colors.black : Colors.white),
+					),
+					onLongPress: () {
+						setState(() {
+							if (alreadySaved) {
+								selectedNameDays.remove(pair);
+							} else {
+								selectedNameDays.add(pair); 
+							} 
+						});
+					},
+
+					onTap: () {
+						if (selectedNameDays.length > 0) {
+							setState(() {
+								if (alreadySaved) {
+									selectedNameDays.remove(pair);
+								} else {
+									selectedNameDays.add(pair); 
+								} 
+							});
+						}
+					},
 				),
-				trailing: Text(
-					pair.date
-				),
-				onTap: () {
-					setState(() {
-						// if (alreadySaved) {
-						// 	selectedNameDays.remove(pair);
-						// } else {
-						// 	selectedNameDays.add(pair); 
-						// } 
-					});
-				},
-		);
+				color: (alreadySaved != true ? Colors.white : Colors.grey),
+			);
 		}
-		
+	}
+
+	void deleteNamedayEvents() {
+		selectedNameDays.forEach((nameday) {
+			new CalendarPlugin().deleteEvent(calendarId: calendarID, eventId: nameday.eventID);
+			savedNamedays.remove(nameday);
+		});
+
+		selectedNameDays = new List<NameDay>();
 	}
 }
 

@@ -50,7 +50,8 @@ class OverviewScreen extends StatelessWidget {
 						),	
 					),
 					SizedBox(height: 10),
-				])
+				]
+			)
 		);
 	}
 
@@ -85,29 +86,29 @@ class OverviewScreen extends StatelessWidget {
 
 	void calendarSyncDialog(BuildContext context) {
 		showDialog<bool>(
-		context: context,
-		builder: (BuildContext context) {
-			return AlertDialog(
-			title: Text('Επιτυχής Συγχρονισμός', textAlign: TextAlign.center,),
-			titleTextStyle: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 20),
-			
-			content: SingleChildScrollView(
-			child: ListBody(
-				children: <Widget>[
-					Text('\n\nΟι επιλεγμένες εορτές προστέθηκαν ως γεγονότα στο ημερολόγιο, ενώ αφαιρέθηκαν όλες οι προηγούμενες καταχωρήσεις.'),
-				],
-			),
-			),
-			actions: <Widget>[
-				FlatButton(
-				child: const Text('OK'),
-				onPressed: () {
-					Navigator.of(context).pop(true);
-				},
-				),
-			],
-			);
-		},
+			context: context,
+			builder: (BuildContext context) {
+				return AlertDialog(
+					title: Text('Επιτυχής Συγχρονισμός', textAlign: TextAlign.center),
+					titleTextStyle: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 20),
+					
+					content: SingleChildScrollView(
+						child: ListBody(
+							children: <Widget>[
+								Text('\n\nΟι επιλεγμένες εορτές προστέθηκαν ως γεγονότα στο ημερολόγιο, ενώ αφαιρέθηκαν όλες οι προηγούμενες καταχωρήσεις.'),
+							],
+						),
+					),
+					actions: <Widget>[
+						FlatButton(
+							child: const Text('OK'),
+							onPressed: () {
+								Navigator.of(context).pop(true);
+							},
+						),
+					],
+				);
+			},
 		);
 	}
 }

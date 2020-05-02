@@ -57,49 +57,55 @@ class RandomWordsState extends State<RandomWords> {
 		return ListView.builder(
 			padding: const EdgeInsets.all(1.0),
 			itemCount: nameDays.nameDaysList.length,
-				itemBuilder: (BuildContext ctxt, int index) {
-					return loadNameday(nameDays.nameDaysList[index]);
-				}
-			);
+			itemBuilder: (BuildContext ctxt, int index) {
+				return loadNameday(nameDays.nameDaysList[index]);
+			}
+		);
 	}
 
 	Widget loadNameday(NameDay pair) {
-		final bool alreadySaved = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
+		final bool alreadySelected = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
+		final bool alreadySaved = selectedNameDays != null ? (selectedNameDays.indexOf(pair) == -1 ? false : selectedNameDays[selectedNameDays.indexOf(pair)].saved) : false;
 
 		if (pair.hypocorisms != null) {
 			return new Tooltip(
-			padding: const EdgeInsets.all(10.0),
-			margin:  const EdgeInsets.all(20.0),
-			textStyle:  const TextStyle(color: Colors.black),
-			decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.black, width: 3.0), borderRadius: BorderRadius.all(Radius.circular(6.0))),
-			message: pair.hypocorisms,
-			child: ListTile(
-				leading: Checkbox(
-					value: alreadySaved,
-					onChanged: null,
+				padding: const EdgeInsets.all(10.0),
+				margin:  const EdgeInsets.all(20.0),
+				textStyle:  const TextStyle(color: Colors.black),
+				decoration: BoxDecoration(
+					color: Colors.white,
+					border: Border.all(color: Colors.black, width: 3.0),
+					borderRadius: BorderRadius.all(Radius.circular(6.0))
 				),
-				title: Text(
-					pair.name,
-					style: _biggerFont,
-				),
-				trailing: Text(
-					pair.date
-				),
-				onTap: () {
-					setState(() {
-						if (alreadySaved) {
-							selectedNameDays.remove(pair);
-						} else {
-							selectedNameDays.add(pair); 
-						} 
-					});
-				},
-			)
-		);
+				message: pair.hypocorisms,
+				child: ListTile(
+					leading: Checkbox(
+						value: alreadySelected,
+						onChanged: null,
+					),
+					title: Text(
+						pair.name,
+						style: _biggerFont,
+					),
+					trailing: Text(
+						pair.date
+					),
+					enabled: !alreadySaved,
+					onTap: () {
+						setState(() {
+							if (alreadySelected) {
+								selectedNameDays.remove(pair);
+							} else {
+								selectedNameDays.add(pair);
+							} 
+						});
+					},
+				)
+			);
 		} else {
 			return new ListTile(
 				leading: Checkbox(
-					value: alreadySaved,
+					value: alreadySelected,
 					onChanged: null,
 				),
 				title: Text(
@@ -109,23 +115,24 @@ class RandomWordsState extends State<RandomWords> {
 				trailing: Text(
 					pair.date
 				),
+				enabled: !alreadySaved,
 				onTap: () {
 					setState(() {
-						if (alreadySaved) {
+						if (alreadySelected) {
 							selectedNameDays.remove(pair);
 						} else {
-							selectedNameDays.add(pair); 
+							selectedNameDays.add(pair);
 						} 
 					});
 				},
-		);
+			);
 		}
-		
 	}
 }
 
 class RandomWords extends StatefulWidget {
 	List<NameDay> selectedNameDays;
+	
 	RandomWords({Key key,this.selectedNameDays}) : super(key: key);
 
 	@override
