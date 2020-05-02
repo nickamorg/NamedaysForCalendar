@@ -86,6 +86,10 @@ class RandomWordsState extends State<RandomWords> {
 						alignment: Alignment.bottomRight,
 						child: FloatingActionButton(
 							onPressed: (() {
+								setState(() {
+									selectedNameDays.clear();
+								});
+								
 								Navigator.push(
 									context,
 									MaterialPageRoute(
@@ -195,7 +199,7 @@ class RandomWordsState extends State<RandomWords> {
 			savedNamedays.remove(nameday);
 		});
 
-		selectedNameDays = new List<NameDay>();
+		selectedNameDays.clear();
 	}
 }
 
