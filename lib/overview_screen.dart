@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:manage_calendar_events/manage_calendar_events.dart';
 import 'nameday.dart';
 
-class DetailScreen extends StatelessWidget {
+class OverviewScreen extends StatelessWidget {
 	final List<NameDay> selectedNameDays;
 	final String calendarID;
 
-	DetailScreen({Key key, @required this.calendarID, @required this.selectedNameDays}) : super(key: key);
+	OverviewScreen({Key key, @required this.calendarID, @required this.selectedNameDays}) : super(key: key);
 
 	@override
 	Widget build(BuildContext context) {

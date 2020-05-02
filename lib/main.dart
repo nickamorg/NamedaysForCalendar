@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:manage_calendar_events/manage_calendar_events.dart';
 import 'nameday.dart';
 import 'overview_screen.dart';
+import 'selection_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,8 +17,8 @@ class MyApp extends StatelessWidget {
 }
 
 class RandomWordsState extends State<RandomWords> {
-	final NameDays nameDays = new NameDays();
-	List<NameDay> selectedNameDays;
+	List<NameDay> savedNamedays = new List<NameDay>();
+	// List<NameDay> selectedNameDays;
 	final _biggerFont = const TextStyle(fontSize: 18.0);
 	String calendarID;
 
@@ -32,13 +33,13 @@ class RandomWordsState extends State<RandomWords> {
 
 			new CalendarPlugin().getEvents(calendarId:calendarID).then((val) {
 				setState(() {
-					selectedNameDays = new List<NameDay>();
+					savedNamedays = new List<NameDay>();
 					val.forEach((event) {
 						if (event.title.contains("🎂 Ονομαστική Εορτή: ")) {
 							String name = event.title.split(" ")[event.title.split(" ").length - 1];
 							String date = (event.startDate.day < 10? "0" : "") + event.startDate.day.toString() + "-" + (event.startDate.month < 10? "0" : "") + event.startDate.month.toString() + "-" + event.startDate.year.toString();
 
-							selectedNameDays.add(new NameDay(name: name, date: date));
+							savedNamedays.add(new NameDay(name: name, date: date));
 						}
 					});
 				});
@@ -48,7 +49,7 @@ class RandomWordsState extends State<RandomWords> {
 
   	@override
 	Widget build(BuildContext context) {
-		if (selectedNameDays == null) {
+		if (savedNamedays == null) {
 			return new Container(
 				margin: const EdgeInsets.all(10.0),
 				color: Colors.blue,
@@ -60,37 +61,53 @@ class RandomWordsState extends State<RandomWords> {
 		return Scaffold(
 			appBar: AppBar(
 				title: Text('Εορτολόγιο'),
-				actions: <Widget>[
-					IconButton(icon: Icon(Icons.add), onPressed: selectNamedays),
-				],
 			),
 			body: loadNamedays(),
-		);
-	}
+			floatingActionButton: Stack(
+			children: <Widget>[
+				Padding(padding: EdgeInsets.only(left:31),
+					child: Align(
+						alignment: Alignment.bottomLeft,
+						child: Visibility(
+							child:FloatingActionButton(
+							backgroundColor: Colors.red,
+							onPressed: null,
+							child: Icon(Icons.delete),),
+							visible: false, // set it to false
+						)
+					),
+				),
 
-	void selectNamedays() {
-		Navigator.push(
-			context,
-			MaterialPageRoute(
-				builder: (context) => DetailScreen(calendarID: calendarID, selectedNameDays: selectedNameDays,
-			),
-        ));
-		
-	
+				Align(
+					alignment: Alignment.bottomRight,
+					child: FloatingActionButton(
+						onPressed: (() {
+							Navigator.push(
+								context,
+								MaterialPageRoute(
+									builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNamedays,
+								),
+							));
+						}),
+					child: Icon(Icons.add)),
+					),
+				],
+			)
+		);
 	}
 
 	Widget loadNamedays() {
 		return ListView.builder(
 			padding: const EdgeInsets.all(1.0),
-			itemCount: nameDays.nameDaysList.length,
+			itemCount: savedNamedays.length,
 				itemBuilder: (BuildContext ctxt, int index) {
-					return loadNameday(nameDays.nameDaysList[index]);
+					return loadNameday(savedNamedays[index]);
 				}
 			);
 	}
 
 	Widget loadNameday(NameDay pair) {
-		final bool alreadySaved = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
+		// final bool alreadySaved = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
 
 		if (pair.hypocorisms != null) {
 			return new Tooltip(
@@ -100,10 +117,6 @@ class RandomWordsState extends State<RandomWords> {
 			decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.black, width: 3.0), borderRadius: BorderRadius.all(Radius.circular(6.0))),
 			message: pair.hypocorisms,
 			child: ListTile(
-				leading: Checkbox(
-					value: alreadySaved,
-					onChanged: null,
-				),
 				title: Text(
 					pair.name,
 					style: _biggerFont,
@@ -113,21 +126,17 @@ class RandomWordsState extends State<RandomWords> {
 				),
 				onTap: () {
 					setState(() {
-						if (alreadySaved) {
-							selectedNameDays.remove(pair);
-						} else {
-							selectedNameDays.add(pair); 
-						} 
+						// if (alreadySaved) {
+						// 	selectedNameDays.remove(pair);
+						// } else {
+						// 	selectedNameDays.add(pair); 
+						// } 
 					});
 				},
 			)
 		);
 		} else {
 			return new ListTile(
-				leading: Checkbox(
-					value: alreadySaved,
-					onChanged: null,
-				),
 				title: Text(
 					pair.name,
 					style: _biggerFont,
@@ -137,11 +146,11 @@ class RandomWordsState extends State<RandomWords> {
 				),
 				onTap: () {
 					setState(() {
-						if (alreadySaved) {
-							selectedNameDays.remove(pair);
-						} else {
-							selectedNameDays.add(pair); 
-						} 
+						// if (alreadySaved) {
+						// 	selectedNameDays.remove(pair);
+						// } else {
+						// 	selectedNameDays.add(pair); 
+						// } 
 					});
 				},
 		);

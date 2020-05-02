@@ -5,7 +5,7 @@ class NameDay {
 
 	NameDay({this.name, this.date, this.hypocorisms});
 
-	@override    
+	@override
 	bool operator ==(Object other) => other is NameDay && other.date == this.date && other.name == this.name;
 }
 
