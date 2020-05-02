@@ -54,12 +54,34 @@ class RandomWordsState extends State<RandomWords> {
 	}
 
 	Widget loadNamedays() {
-		return ListView.builder(
-			padding: const EdgeInsets.all(1.0),
-			itemCount: nameDays.nameDaysList.length,
-			itemBuilder: (BuildContext ctxt, int index) {
-				return loadNameday(nameDays.nameDaysList[index]);
-			}
+		
+		return Column(
+			children:[
+				Container(
+					padding: const EdgeInsets.all(20.0),
+					child: new Center(
+						child: TextField(
+							decoration: InputDecoration(
+								border: new OutlineInputBorder(
+									borderRadius: const BorderRadius.all(
+									const Radius.circular(6.0),
+									),
+								),
+								hintText: 'Αναζήτηση Ονομαστικής Εορτής',
+							),
+						),
+					)
+				),
+				Expanded(
+					child: ListView.builder(
+						padding: const EdgeInsets.all(1.0),
+						itemCount: nameDays.nameDaysList.length,
+						itemBuilder: (BuildContext ctxt, int index) {
+							return loadNameday(nameDays.nameDaysList[index]);
+						}
+					)
+				)
+			]
 		);
 	}
 
@@ -132,7 +154,7 @@ class RandomWordsState extends State<RandomWords> {
 
 class RandomWords extends StatefulWidget {
 	List<NameDay> selectedNameDays;
-	
+
 	RandomWords({Key key,this.selectedNameDays}) : super(key: key);
 
 	@override
