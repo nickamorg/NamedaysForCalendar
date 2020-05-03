@@ -19,7 +19,7 @@ class OverviewScreen extends StatelessWidget {
 			body: Column(
 				children:[
 					Expanded(
-						child: ListView(children: selectedNameDays.nameDaysList.map(
+						child: ListView(children: selectedNameDays.nameDaysList.where((nameday) => nameday.eventID == null).map(
 							(NameDay pair) {
 								return ListTile(
 									title: Text(
@@ -41,13 +41,13 @@ class OverviewScreen extends StatelessWidget {
 						textColor: Colors.white,
 						padding: EdgeInsets.all(16.0),
 						
-						onPressed: () => {
-							addNamedaysToCalendar(),
-							calendarSyncDialog(context)
+						onPressed: () {
+							addNamedaysToCalendar();
+							calendarSyncDialog(context);
 						},
 
 						child: Text(
-							'Συγχρονισμός Ημερολογίου',
+							'Προσθήκη στο Ημερολόγιο',
 							style: TextStyle(fontSize: 20)
 						),	
 					),
@@ -58,15 +58,7 @@ class OverviewScreen extends StatelessWidget {
 	}
 
 	addNamedaysToCalendar() {
-		CalendarPlugin deviceCalendarPlugin = new CalendarPlugin();
-
-		deviceCalendarPlugin.getEvents(calendarId:calendarID).then((val) {
-			val.forEach((event) {
-				if (event.title.contains("🎂 Ονομαστική Εορτή: ")) {
-					deviceCalendarPlugin.deleteEvent(calendarId: calendarID, eventId: event.eventId);
-				}
-			});
-		});
+		CalendarPlugin calendarAPI = new CalendarPlugin();
 
 		CalendarEvent event = new CalendarEvent();
 		
@@ -82,7 +74,7 @@ class OverviewScreen extends StatelessWidget {
 			event.endDate = new DateTime(year, month, day, 0, 0, 0);
 			event.isAllDay = true;
 			
-			deviceCalendarPlugin.createEvent(calendarId: calendarID, event: event);
+			calendarAPI.createEvent(calendarId: calendarID, event: event);
 		});
 	}
 
@@ -91,13 +83,13 @@ class OverviewScreen extends StatelessWidget {
 			context: context,
 			builder: (BuildContext context) {
 				return AlertDialog(
-					title: Text('Επιτυχής Συγχρονισμός', textAlign: TextAlign.center),
+					title: Text('Επιτυχής Αποθήκευση', textAlign: TextAlign.center),
 					titleTextStyle: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 20),
 					
 					content: SingleChildScrollView(
 						child: ListBody(
 							children: <Widget>[
-								Text('\n\nΟι επιλεγμένες εορτές προστέθηκαν ως γεγονότα στο ημερολόγιο, ενώ αφαιρέθηκαν όλες οι προηγούμενες καταχωρήσεις.'),
+								Text('Οι επιλεγμένες εορτές προστέθηκαν ως γεγονότα στο ημερολόγιο.'),
 							],
 						),
 					),

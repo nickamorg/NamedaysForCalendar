@@ -20,16 +20,21 @@ class SelectNamedaysState extends State<SelectNamedays> {
 	final _biggerFont = const TextStyle(fontSize: 18.0);
 	String calendarID;
 	final searchNdayCtrl = TextEditingController();
+	int alreadySavedNamedays = -1;
 
   	@override
 	Widget build(BuildContext context) {
 		selectedNameDays = widget.selectedNameDays;
+		if(alreadySavedNamedays == -1) alreadySavedNamedays = selectedNameDays.nameDaysList.length;
 		
 		return Scaffold(
 			appBar: AppBar(
 				title: Text('Επιλογή Εορτών'),
 				actions: <Widget>[
-					IconButton(icon: Icon(Icons.add), onPressed: selectNamedays),
+					Visibility(
+						visible: selectedNameDays.nameDaysList.length > alreadySavedNamedays,
+						child: IconButton(icon: Icon(Icons.format_list_numbered), onPressed: selectNamedays),
+					)
 				],
 			),
 			body: loadNamedays(),
@@ -92,6 +97,10 @@ class SelectNamedaysState extends State<SelectNamedays> {
 				(areAllSelected ? 'Αποεπιλογή' : 'Επιλογή') + ' Όλων',
 				style: _biggerFont,
 			),
+			trailing: Text(
+				selectedNameDays.nameDaysList.where((nameday) => nameday.eventID == null).length.toString() + '/' + (nameDays.nameDaysList.length - selectedNameDays.nameDaysList.where((nameday) => nameday.eventID != null).length).toString(),
+				style: _biggerFont,
+			),
 			onTap: () {
 				setState(() {
 					if (areAllSelected) {
@@ -116,8 +125,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 
 		if (pair.hypocorisms.isNotEmpty) {
 			return new Tooltip(
-				padding: const EdgeInsets.all(10.0),
-				margin:  const EdgeInsets.all(20.0),
+				margin:  const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 0),
 				textStyle:  const TextStyle(color: Colors.black),
 				decoration: BoxDecoration(
 					color: Colors.white,
@@ -170,7 +178,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 }
 
 class SelectNamedays extends StatefulWidget {
-	NameDays selectedNameDays;
+	final NameDays selectedNameDays;
 
 	SelectNamedays({Key key,this.selectedNameDays}) : super(key: key);
 

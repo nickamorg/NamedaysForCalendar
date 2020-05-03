@@ -79,7 +79,7 @@ class SavedNamedaysState extends State<SavedNamedays> {
 									),
 								)).then((val) => loadSavedNamedays());
 							}),
-						child: Icon(Icons.add)),
+						child: Icon(Icons.add), tooltip: 'Προσθήκη Εορτών'),
 					),
 				],
 			)
@@ -160,14 +160,16 @@ class SavedNamedaysState extends State<SavedNamedays> {
 	}
 
 	void loadSavedNamedays() {
+		CalendarPlugin calendarAPI = new CalendarPlugin();
+
 		savedNamedays.nameDaysList.clear();
 		
-		new CalendarPlugin().getCalendars().then((calendars) { 
+		calendarAPI.getCalendars().then((calendars) { 
 			calendars.forEach((val) {
 				if (val.name.contains("@gmail.com")) calendarID = val.id;
 			});
 
-			new CalendarPlugin().getEvents(calendarId:calendarID).then((val) {
+			calendarAPI.getEvents(calendarId:calendarID).then((val) {
 				setState(() {
 					val.forEach((event) {
 						if (event.title.contains("🎂 Ονομαστική Εορτή: ")) {
@@ -185,8 +187,10 @@ class SavedNamedaysState extends State<SavedNamedays> {
 	}
 
 	void deleteNamedayEvents() {
+		CalendarPlugin calendarAPI = new CalendarPlugin();
+
 		selectedNameDays.nameDaysList.forEach((nameday) {
-			new CalendarPlugin().deleteEvent(calendarId: calendarID, eventId: nameday.eventID);
+			calendarAPI.deleteEvent(calendarId: calendarID, eventId: nameday.eventID);
 			savedNamedays.nameDaysList.remove(nameday);
 		});
 
