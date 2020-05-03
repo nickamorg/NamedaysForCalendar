@@ -1,3 +1,13 @@
+class Normalizer {
+	static List<List<String>> letters = [['ά', 'α'], ['έ', 'ε'], ['ή', 'η'], ['ί', 'ι'], ['ό', 'ο'], ['ύ', 'υ'], ['ώ', 'ω']];
+
+	static String normalize(String str) {
+		letters.forEach((letter) => str = str.replaceAll(letter[0], letter[1])); //text;
+
+		return str;
+	}
+}
+
 class NameDay {
 	String name;
 	String date;
@@ -5,19 +15,31 @@ class NameDay {
 	bool saved;
 	String eventID;
 
-	NameDay({this.name, this.date, this.hypocorisms, this.saved = false, this.eventID});
+	NameDay({this.name, this.date, this.hypocorisms = "", this.saved = false, this.eventID});
 
 	@override
 	bool operator ==(Object other) => other is NameDay && other.date == this.date && other.name == this.name;
+
+	@override
+	bool operator >(String other) {
+		String substring = Normalizer.normalize(other.toLowerCase());
+		String newName = Normalizer.normalize(name.toLowerCase());
+		String newHypocorisms = Normalizer.normalize(hypocorisms.toLowerCase());
+
+		return newName.contains(substring) || newHypocorisms.contains(substring) || date.contains(substring);
+	}
 }
 
 class NameDays {
 	List<NameDay> nameDaysList;
 
-	NameDays() {
+	NameDays(bool flag) {
+		nameDaysList = new List<NameDay>();
+
+		if (!flag) return;
+
 		String year = new DateTime.now().year.toString();
 
-		nameDaysList = <NameDay>[];
 		nameDaysList.add(new NameDay(name: 'Βασίλειος', date: '01-01-' + year, hypocorisms: 'Βασίλης, Βάσος, Βασίλας, Μπίλλης, Μπίλης, Βασιλεία, Βασιλική, Βάσω, Βάσια, Βιβή, Βίκυ, Βίβιαν, Βασούλα, Βασιλίνα'));
 		nameDaysList.add(new NameDay(name: 'Σταμάτης',  date: '03-02-' + year));
 		nameDaysList.add(new NameDay(name: 'Ιωάννης',   date: '06-03-' + year));
@@ -34,10 +56,13 @@ class NameDays {
 		nameDaysList.add(new NameDay(name: 'Νικόλαος',  date: '06-12-' + year));
 
 		nameDaysList.sort((a, b) {
-			List<int> date1 = a.date.split('-').map(int.parse).toList();
-			List<int> date2 = b.date.split('-').map(int.parse).toList();
+			return a.name.compareTo(b.name);
+		});
+	}
 
-			return date1[1].compareTo(date2[1]) + date1[0].compareTo(date2[0]);
-		});	
+	void sort() {
+		nameDaysList.sort((a, b) {
+			return a.name.compareTo(b.name);
+		});
 	}
 }

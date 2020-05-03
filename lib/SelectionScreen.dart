@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'nameday.dart';
-import 'overview_screen.dart';
+import 'OverviewScreen.dart';
 
 class SelectionScreen extends StatelessWidget {
 	final List<NameDay> selectedNameDays;
@@ -10,19 +10,20 @@ class SelectionScreen extends StatelessWidget {
 
 	@override
 	Widget build(BuildContext context) {
-		return RandomWords(selectedNameDays: selectedNameDays);
+		return SelectNamedays(selectedNameDays: selectedNameDays);
 	}
 }
 
-class RandomWordsState extends State<RandomWords> {
-	final NameDays nameDays = new NameDays();
-	List<NameDay> selectedNameDays;
+class SelectNamedaysState extends State<SelectNamedays> {
+	final NameDays nameDays = new NameDays(true);
+	NameDays selectedNameDays = new NameDays(false);
 	final _biggerFont = const TextStyle(fontSize: 18.0);
 	String calendarID;
+	final searchNdayCtrl = TextEditingController();
 
   	@override
 	Widget build(BuildContext context) {
-		selectedNameDays = widget.selectedNameDays;
+		selectedNameDays.nameDaysList = widget.selectedNameDays;
 
 		if (selectedNameDays == null) {
 			return new Container(
@@ -48,7 +49,7 @@ class RandomWordsState extends State<RandomWords> {
 		Navigator.push(
 			context,
 			MaterialPageRoute(
-				builder: (context) => OverviewScreen(calendarID: calendarID, selectedNameDays: selectedNameDays,
+				builder: (context) => OverviewScreen(calendarID: calendarID, selectedNameDays: selectedNameDays.nameDaysList,
 			),
         ));
 	}
@@ -69,15 +70,19 @@ class RandomWordsState extends State<RandomWords> {
 								),
 								hintText: 'Αναζήτηση Ονομαστικής Εορτής',
 							),
+							controller: searchNdayCtrl,
+							onChanged: (text) {
+								setState(() {});   // Redraw the Stateful Widget
+							},
 						),
 					)
 				),
 				Expanded(
 					child: ListView.builder(
 						padding: const EdgeInsets.all(1.0),
-						itemCount: nameDays.nameDaysList.length,
+						itemCount: nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).length,
 						itemBuilder: (BuildContext ctxt, int index) {
-							return loadNameday(nameDays.nameDaysList[index]);
+							return loadNameday(nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index]);
 						}
 					)
 				)
@@ -86,10 +91,10 @@ class RandomWordsState extends State<RandomWords> {
 	}
 
 	Widget loadNameday(NameDay pair) {
-		final bool alreadySelected = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
-		final bool alreadySaved = selectedNameDays != null ? (selectedNameDays.indexOf(pair) == -1 ? false : selectedNameDays[selectedNameDays.indexOf(pair)].saved) : false;
+		final bool alreadySelected = selectedNameDays != null ? selectedNameDays.nameDaysList.contains(pair) : false;
+		final bool alreadySaved = selectedNameDays != null ? (selectedNameDays.nameDaysList.indexOf(pair) == -1 ? false : selectedNameDays.nameDaysList[selectedNameDays.nameDaysList.indexOf(pair)].saved) : false;
 
-		if (pair.hypocorisms != null) {
+		if (pair.hypocorisms.isNotEmpty) {
 			return new Tooltip(
 				padding: const EdgeInsets.all(10.0),
 				margin:  const EdgeInsets.all(20.0),
@@ -116,9 +121,9 @@ class RandomWordsState extends State<RandomWords> {
 					onTap: () {
 						setState(() {
 							if (alreadySelected) {
-								selectedNameDays.remove(pair);
+								selectedNameDays.nameDaysList.remove(pair);
 							} else {
-								selectedNameDays.add(pair);
+								selectedNameDays.nameDaysList.add(pair);
 							} 
 						});
 					},
@@ -141,9 +146,9 @@ class RandomWordsState extends State<RandomWords> {
 				onTap: () {
 					setState(() {
 						if (alreadySelected) {
-							selectedNameDays.remove(pair);
+							selectedNameDays.nameDaysList.remove(pair);
 						} else {
-							selectedNameDays.add(pair);
+							selectedNameDays.nameDaysList.add(pair);
 						} 
 					});
 				},
@@ -152,11 +157,11 @@ class RandomWordsState extends State<RandomWords> {
 	}
 }
 
-class RandomWords extends StatefulWidget {
+class SelectNamedays extends StatefulWidget {
 	List<NameDay> selectedNameDays;
 
-	RandomWords({Key key,this.selectedNameDays}) : super(key: key);
+	SelectNamedays({Key key,this.selectedNameDays}) : super(key: key);
 
 	@override
-	State createState() => RandomWordsState();
+	State createState() => SelectNamedaysState();
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:manage_calendar_events/manage_calendar_events.dart';
 import 'nameday.dart';
-import 'selection_screen.dart';
+import 'SelectionScreen.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,14 +10,14 @@ class MyApp extends StatelessWidget {
 	Widget build(BuildContext context) {
 		return MaterialApp(
 			title: 'Εορτολόγιο',
-			home: RandomWords(),
+			home: SavedNamedays(),
 		);
 	}
 }
 
-class RandomWordsState extends State<RandomWords> {
-	List<NameDay> savedNamedays = new List<NameDay>();
-	List<NameDay> selectedNameDays = new List<NameDay>();
+class SavedNamedaysState extends State<SavedNamedays> {
+	NameDays savedNamedays = new NameDays(false);
+	NameDays selectedNameDays = new NameDays(false);
 	final _biggerFont = const TextStyle(fontSize: 18.0);
 	String calendarID;
 
@@ -32,15 +32,15 @@ class RandomWordsState extends State<RandomWords> {
 
 			new CalendarPlugin().getEvents(calendarId:calendarID).then((val) {
 				setState(() {
-					savedNamedays = new List<NameDay>();
 					val.forEach((event) {
 						if (event.title.contains("🎂 Ονομαστική Εορτή: ")) {
 							String name = event.title.split(" ")[event.title.split(" ").length - 1];
 							String date = (event.startDate.day < 10? "0" : "") + event.startDate.day.toString() + "-" + (event.startDate.month < 10? "0" : "") + event.startDate.month.toString() + "-" + event.startDate.year.toString();
 
-							savedNamedays.add(new NameDay(name: name, date: date, saved: true, eventID: event.eventId));
+							savedNamedays.nameDaysList.add(new NameDay(name: name, date: date, saved: true, eventID: event.eventId));
 						}
 					});
+					savedNamedays.sort();
 				});
 			});
 		});
@@ -77,7 +77,7 @@ class RandomWordsState extends State<RandomWords> {
 									},
 									child: Icon(Icons.delete),
 								),
-								visible: selectedNameDays.length > 0,
+								visible: selectedNameDays.nameDaysList.length > 0,
 							)
 						),
 					),
@@ -87,13 +87,13 @@ class RandomWordsState extends State<RandomWords> {
 						child: FloatingActionButton(
 							onPressed: (() {
 								setState(() {
-									selectedNameDays.clear();
+									selectedNameDays.nameDaysList.clear();
 								});
 								
 								Navigator.push(
 									context,
 									MaterialPageRoute(
-										builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNamedays,
+										builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNamedays.nameDaysList,
 									),
 								));
 							}),
@@ -107,17 +107,17 @@ class RandomWordsState extends State<RandomWords> {
 	Widget loadNamedays() {
 		return ListView.builder(
 			padding: const EdgeInsets.all(1.0),
-			itemCount: savedNamedays.length,
+			itemCount: savedNamedays.nameDaysList.length,
 			itemBuilder: (BuildContext ctxt, int index) {
-				return loadNameday(savedNamedays[index]);
+				return loadNameday(savedNamedays.nameDaysList[index]);
 			}
 		);
 	}
 
 	Widget loadNameday(NameDay pair) {
-		final bool alreadySaved = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
+		final bool alreadySaved = selectedNameDays != null ? selectedNameDays.nameDaysList.contains(pair) : false;
 
-		if (pair.hypocorisms != null) {
+		if (pair.hypocorisms.isNotEmpty) {
 			return new Tooltip(
 				padding: const EdgeInsets.all(10.0),
 				margin: const EdgeInsets.all(20.0),
@@ -135,20 +135,20 @@ class RandomWordsState extends State<RandomWords> {
 					onLongPress: () {
 						setState(() {
 							if (alreadySaved) {
-								selectedNameDays.remove(pair);
+								selectedNameDays.nameDaysList.remove(pair);
 							} else {
-								selectedNameDays.add(pair); 
+								selectedNameDays.nameDaysList.add(pair); 
 							} 
 						});
 					},
 
 					onTap: () {
-						if (selectedNameDays.length > 0) {
+						if (selectedNameDays.nameDaysList.length > 0) {
 							setState(() {
 								if (alreadySaved) {
-									selectedNameDays.remove(pair);
+									selectedNameDays.nameDaysList.remove(pair);
 								} else {
-									selectedNameDays.add(pair); 
+									selectedNameDays.nameDaysList.add(pair); 
 								} 
 							});
 						}
@@ -169,20 +169,20 @@ class RandomWordsState extends State<RandomWords> {
 					onLongPress: () {
 						setState(() {
 							if (alreadySaved) {
-								selectedNameDays.remove(pair);
+								selectedNameDays.nameDaysList.remove(pair);
 							} else {
-								selectedNameDays.add(pair); 
+								selectedNameDays.nameDaysList.add(pair); 
 							} 
 						});
 					},
 
 					onTap: () {
-						if (selectedNameDays.length > 0) {
+						if (selectedNameDays.nameDaysList.length > 0) {
 							setState(() {
 								if (alreadySaved) {
-									selectedNameDays.remove(pair);
+									selectedNameDays.nameDaysList.remove(pair);
 								} else {
-									selectedNameDays.add(pair); 
+									selectedNameDays.nameDaysList.add(pair); 
 								} 
 							});
 						}
@@ -194,16 +194,16 @@ class RandomWordsState extends State<RandomWords> {
 	}
 
 	void deleteNamedayEvents() {
-		selectedNameDays.forEach((nameday) {
+		selectedNameDays.nameDaysList.forEach((nameday) {
 			new CalendarPlugin().deleteEvent(calendarId: calendarID, eventId: nameday.eventID);
-			savedNamedays.remove(nameday);
+			savedNamedays.nameDaysList.remove(nameday);
 		});
 
-		selectedNameDays.clear();
+		selectedNameDays.nameDaysList.clear();
 	}
 }
 
-class RandomWords extends StatefulWidget {
+class SavedNamedays extends StatefulWidget {
 	@override
-	State createState() => RandomWordsState();
+	State createState() => SavedNamedaysState();
 }
