@@ -24,15 +24,6 @@ class SelectNamedaysState extends State<SelectNamedays> {
   	@override
 	Widget build(BuildContext context) {
 		selectedNameDays.nameDaysList = widget.selectedNameDays;
-
-		if (selectedNameDays == null) {
-			return new Container(
-				margin: const EdgeInsets.all(10.0),
-				color: Colors.blue,
-				width: 48.0,
-				height: 48.0,
-			);
-		}
 		
 		return Scaffold(
 			appBar: AppBar(
@@ -80,14 +71,44 @@ class SelectNamedaysState extends State<SelectNamedays> {
 				Expanded(
 					child: ListView.builder(
 						padding: const EdgeInsets.all(1.0),
-						itemCount: nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).length,
+						itemCount: nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).length + 1,
 						itemBuilder: (BuildContext ctxt, int index) {
-							return loadNameday(nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index]);
+							return index == 0 ? selectAllItem() : loadNameday(nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index - 1]);
 						}
 					)
 				)
 			]
 		);
+	}
+
+	Widget selectAllItem() {
+		bool areAllSelected = selectedNameDays.nameDaysList.length == nameDays.nameDaysList.length;
+
+		return new ListTile(
+				leading: Checkbox(
+					value: areAllSelected,
+					onChanged: null,
+				),
+				title: Text(
+					(areAllSelected ? 'Αποεπιλογή' : 'Επιλογή') + ' Όλων',
+					style: _biggerFont,
+				),
+				onTap: () {
+					setState(() {
+						if (areAllSelected) {
+							for (var i = selectedNameDays.nameDaysList.length - 1; i >= 0; i--) {
+								if (!selectedNameDays.nameDaysList[i].saved)
+									selectedNameDays.nameDaysList.removeAt(i);
+							}
+						} else {
+							nameDays.nameDaysList.forEach((nameday) {
+								if (!selectedNameDays.nameDaysList.contains(nameday))
+									selectedNameDays.nameDaysList.add(nameday);
+							});
+						}
+					});
+				},
+			);
 	}
 
 	Widget loadNameday(NameDay pair) {
@@ -120,11 +141,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 					enabled: !alreadySaved,
 					onTap: () {
 						setState(() {
-							if (alreadySelected) {
-								selectedNameDays.nameDaysList.remove(pair);
-							} else {
-								selectedNameDays.nameDaysList.add(pair);
-							} 
+							alreadySelected ? selectedNameDays.nameDaysList.remove(pair) : selectedNameDays.nameDaysList.add(pair);
 						});
 					},
 				)
@@ -145,11 +162,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 				enabled: !alreadySaved,
 				onTap: () {
 					setState(() {
-						if (alreadySelected) {
-							selectedNameDays.nameDaysList.remove(pair);
-						} else {
-							selectedNameDays.nameDaysList.add(pair);
-						} 
+						alreadySelected ? selectedNameDays.nameDaysList.remove(pair) : selectedNameDays.nameDaysList.add(pair);
 					});
 				},
 			);

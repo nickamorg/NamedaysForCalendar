@@ -27,7 +27,7 @@ class SavedNamedaysState extends State<SavedNamedays> {
 		
 		new CalendarPlugin().getCalendars().then((calendars) { 
 			calendars.forEach((val) { 
-				if(val.name.contains("@gmail.com")) calendarID = val.id;
+				if (val.name.contains("@gmail.com")) calendarID = val.id;
 			});
 
 			new CalendarPlugin().getEvents(calendarId:calendarID).then((val) {
@@ -134,22 +134,14 @@ class SavedNamedaysState extends State<SavedNamedays> {
 					),
 					onLongPress: () {
 						setState(() {
-							if (alreadySaved) {
-								selectedNameDays.nameDaysList.remove(pair);
-							} else {
-								selectedNameDays.nameDaysList.add(pair); 
-							} 
+							alreadySaved ? selectedNameDays.nameDaysList.remove(pair) : selectedNameDays.nameDaysList.add(pair);
 						});
 					},
 
 					onTap: () {
 						if (selectedNameDays.nameDaysList.length > 0) {
 							setState(() {
-								if (alreadySaved) {
-									selectedNameDays.nameDaysList.remove(pair);
-								} else {
-									selectedNameDays.nameDaysList.add(pair); 
-								} 
+								alreadySaved ? selectedNameDays.nameDaysList.remove(pair) : selectedNameDays.nameDaysList.add(pair);
 							});
 						}
 					},
@@ -168,22 +160,14 @@ class SavedNamedaysState extends State<SavedNamedays> {
 					),
 					onLongPress: () {
 						setState(() {
-							if (alreadySaved) {
-								selectedNameDays.nameDaysList.remove(pair);
-							} else {
-								selectedNameDays.nameDaysList.add(pair); 
-							} 
+							alreadySaved ? selectedNameDays.nameDaysList.remove(pair) : selectedNameDays.nameDaysList.add(pair);
 						});
 					},
 
 					onTap: () {
 						if (selectedNameDays.nameDaysList.length > 0) {
 							setState(() {
-								if (alreadySaved) {
-									selectedNameDays.nameDaysList.remove(pair);
-								} else {
-									selectedNameDays.nameDaysList.add(pair); 
-								} 
+								alreadySaved ? selectedNameDays.nameDaysList.remove(pair) : selectedNameDays.nameDaysList.add(pair);
 							});
 						}
 					},
