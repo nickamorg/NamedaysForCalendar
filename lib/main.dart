@@ -25,25 +25,7 @@ class SavedNamedaysState extends State<SavedNamedays> {
     void initState() {
 		super.initState();
 		
-		new CalendarPlugin().getCalendars().then((calendars) { 
-			calendars.forEach((val) { 
-				if (val.name.contains("@gmail.com")) calendarID = val.id;
-			});
-
-			new CalendarPlugin().getEvents(calendarId:calendarID).then((val) {
-				setState(() {
-					val.forEach((event) {
-						if (event.title.contains("🎂 Ονομαστική Εορτή: ")) {
-							String name = event.title.split(" ")[event.title.split(" ").length - 1];
-							String date = (event.startDate.day < 10? "0" : "") + event.startDate.day.toString() + "-" + (event.startDate.month < 10? "0" : "") + event.startDate.month.toString() + "-" + event.startDate.year.toString();
-
-							savedNamedays.nameDaysList.add(new NameDay(name: name, date: date, saved: true, eventID: event.eventId));
-						}
-					});
-					savedNamedays.sort();
-				});
-			});
-		});
+		loadSavedNamedays();
 	}
 
   	@override
@@ -93,9 +75,9 @@ class SavedNamedaysState extends State<SavedNamedays> {
 								Navigator.push(
 									context,
 									MaterialPageRoute(
-										builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNamedays.nameDaysList,
+										builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNamedays,
 									),
-								));
+								)).then((val) => loadSavedNamedays());
 							}),
 						child: Icon(Icons.add)),
 					),
@@ -175,6 +157,31 @@ class SavedNamedaysState extends State<SavedNamedays> {
 				color: (alreadySaved != true ? Colors.white : Colors.grey),
 			);
 		}
+	}
+
+	void loadSavedNamedays() {
+		savedNamedays.nameDaysList.clear();
+		
+		new CalendarPlugin().getCalendars().then((calendars) { 
+			calendars.forEach((val) {
+				if (val.name.contains("@gmail.com")) calendarID = val.id;
+			});
+
+			new CalendarPlugin().getEvents(calendarId:calendarID).then((val) {
+				setState(() {
+					val.forEach((event) {
+						if (event.title.contains("🎂 Ονομαστική Εορτή: ")) {
+							String name = event.title.split(" ")[event.title.split(" ").length - 1];
+							String date = (event.startDate.day < 10? "0" : "") + event.startDate.day.toString() + "-" + (event.startDate.month < 10? "0" : "") + event.startDate.month.toString() + "-" + event.startDate.year.toString();
+
+							savedNamedays.nameDaysList.add(new NameDay(name: name, date: date, eventID: event.eventId));
+						}
+					});
+
+					savedNamedays.sort();
+				});
+			});
+		});
 	}
 
 	void deleteNamedayEvents() {

@@ -3,10 +3,12 @@ import 'package:manage_calendar_events/manage_calendar_events.dart';
 import 'nameday.dart';
 
 class OverviewScreen extends StatelessWidget {
-	final List<NameDay> selectedNameDays;
+	final NameDays selectedNameDays;
 	final String calendarID;
 
-	OverviewScreen({Key key, @required this.calendarID, @required this.selectedNameDays}) : super(key: key);
+	OverviewScreen({Key key, @required this.calendarID, @required this.selectedNameDays}) : super(key: key) {
+		selectedNameDays.sort();
+	}
 
 	@override
 	Widget build(BuildContext context) {
@@ -17,7 +19,7 @@ class OverviewScreen extends StatelessWidget {
 			body: Column(
 				children:[
 					Expanded(
-						child: ListView(children: selectedNameDays.map(
+						child: ListView(children: selectedNameDays.nameDaysList.map(
 							(NameDay pair) {
 								return ListTile(
 									title: Text(
@@ -68,7 +70,7 @@ class OverviewScreen extends StatelessWidget {
 
 		CalendarEvent event = new CalendarEvent();
 		
-		selectedNameDays.forEach((nameday) {
+		selectedNameDays.nameDaysList.forEach((nameday) {
 			event.title = "🎂 Ονομαστική Εορτή: " + nameday.name;
 			event.description = "Σήμερα γιορτάζει ο " + nameday.name + ". Ευχηθείτε του Xρόνια Πολλά.";
 

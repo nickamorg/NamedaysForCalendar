@@ -3,7 +3,7 @@ import 'nameday.dart';
 import 'OverviewScreen.dart';
 
 class SelectionScreen extends StatelessWidget {
-	final List<NameDay> selectedNameDays;
+	final NameDays selectedNameDays;
 	final String calendarID;
 
   	SelectionScreen({Key key, @required this.calendarID, @required this.selectedNameDays}) : super(key: key);
@@ -23,7 +23,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 
   	@override
 	Widget build(BuildContext context) {
-		selectedNameDays.nameDaysList = widget.selectedNameDays;
+		selectedNameDays = widget.selectedNameDays;
 		
 		return Scaffold(
 			appBar: AppBar(
@@ -40,13 +40,12 @@ class SelectNamedaysState extends State<SelectNamedays> {
 		Navigator.push(
 			context,
 			MaterialPageRoute(
-				builder: (context) => OverviewScreen(calendarID: calendarID, selectedNameDays: selectedNameDays.nameDaysList,
+				builder: (context) => OverviewScreen(calendarID: calendarID, selectedNameDays: selectedNameDays,
 			),
         ));
 	}
 
 	Widget loadNamedays() {
-		
 		return Column(
 			children:[
 				Container(
@@ -85,35 +84,35 @@ class SelectNamedaysState extends State<SelectNamedays> {
 		bool areAllSelected = selectedNameDays.nameDaysList.length == nameDays.nameDaysList.length;
 
 		return new ListTile(
-				leading: Checkbox(
-					value: areAllSelected,
-					onChanged: null,
-				),
-				title: Text(
-					(areAllSelected ? 'Αποεπιλογή' : 'Επιλογή') + ' Όλων',
-					style: _biggerFont,
-				),
-				onTap: () {
-					setState(() {
-						if (areAllSelected) {
-							for (var i = selectedNameDays.nameDaysList.length - 1; i >= 0; i--) {
-								if (!selectedNameDays.nameDaysList[i].saved)
-									selectedNameDays.nameDaysList.removeAt(i);
-							}
-						} else {
-							nameDays.nameDaysList.forEach((nameday) {
-								if (!selectedNameDays.nameDaysList.contains(nameday))
-									selectedNameDays.nameDaysList.add(nameday);
-							});
+			leading: Checkbox(
+				value: areAllSelected,
+				onChanged: null,
+			),
+			title: Text(
+				(areAllSelected ? 'Αποεπιλογή' : 'Επιλογή') + ' Όλων',
+				style: _biggerFont,
+			),
+			onTap: () {
+				setState(() {
+					if (areAllSelected) {
+						for (var i = selectedNameDays.nameDaysList.length - 1; i >= 0; i--) {
+							if (selectedNameDays.nameDaysList[i].eventID == null)
+								selectedNameDays.nameDaysList.removeAt(i);
 						}
-					});
-				},
-			);
+					} else {
+						nameDays.nameDaysList.forEach((nameday) {
+							if (!selectedNameDays.nameDaysList.contains(nameday))
+								selectedNameDays.nameDaysList.add(nameday);
+						});
+					}
+				});
+			},
+		);
 	}
 
 	Widget loadNameday(NameDay pair) {
 		final bool alreadySelected = selectedNameDays != null ? selectedNameDays.nameDaysList.contains(pair) : false;
-		final bool alreadySaved = selectedNameDays != null ? (selectedNameDays.nameDaysList.indexOf(pair) == -1 ? false : selectedNameDays.nameDaysList[selectedNameDays.nameDaysList.indexOf(pair)].saved) : false;
+		final bool alreadySaved = selectedNameDays != null ? (selectedNameDays.nameDaysList.indexOf(pair) == -1 ? false : selectedNameDays.nameDaysList[selectedNameDays.nameDaysList.indexOf(pair)].eventID != null) : false;
 
 		if (pair.hypocorisms.isNotEmpty) {
 			return new Tooltip(
@@ -171,7 +170,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 }
 
 class SelectNamedays extends StatefulWidget {
-	List<NameDay> selectedNameDays;
+	NameDays selectedNameDays;
 
 	SelectNamedays({Key key,this.selectedNameDays}) : super(key: key);
 

@@ -12,10 +12,9 @@ class NameDay {
 	String name;
 	String date;
 	String hypocorisms;
-	bool saved;
 	String eventID;
 
-	NameDay({this.name, this.date, this.hypocorisms = "", this.saved = false, this.eventID});
+	NameDay({this.name, this.date, this.hypocorisms = "", this.eventID});
 
 	@override
 	bool operator ==(Object other) => other is NameDay && other.date == this.date && other.name == this.name;
