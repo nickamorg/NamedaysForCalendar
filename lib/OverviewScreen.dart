@@ -57,12 +57,9 @@ class OverviewScreen extends StatelessWidget {
 		);
 	}
 
-	addNamedaysToCalendar() {
-		CalendarPlugin calendarAPI = new CalendarPlugin();
-
-		CalendarEvent event = new CalendarEvent();
-		
+	void addNamedaysToCalendar() {
 		selectedNameDays.nameDaysList.forEach((nameday) {
+			CalendarEvent event = new CalendarEvent();
 			event.title = "🎂 Ονομαστική Εορτή: " + nameday.name;
 			event.description = "Σήμερα γιορτάζει ο " + nameday.name + ". Ευχηθείτε του Xρόνια Πολλά.";
 
@@ -74,7 +71,7 @@ class OverviewScreen extends StatelessWidget {
 			event.endDate = new DateTime(year, month, day, 0, 0, 0);
 			event.isAllDay = true;
 			
-			calendarAPI.createEvent(calendarId: calendarID, event: event);
+			new CalendarPlugin().createEvent(calendarId: calendarID, event: event);
 		});
 	}
 

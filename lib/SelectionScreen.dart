@@ -10,7 +10,7 @@ class SelectionScreen extends StatelessWidget {
 
 	@override
 	Widget build(BuildContext context) {
-		return SelectNamedays(selectedNameDays: selectedNameDays);
+		return SelectNamedays(calendarID: calendarID, selectedNameDays: selectedNameDays);
 	}
 }
 
@@ -25,6 +25,8 @@ class SelectNamedaysState extends State<SelectNamedays> {
   	@override
 	Widget build(BuildContext context) {
 		selectedNameDays = widget.selectedNameDays;
+		calendarID = widget.calendarID;
+
 		if(alreadySavedNamedays == -1) alreadySavedNamedays = selectedNameDays.nameDaysList.length;
 		
 		return Scaffold(
@@ -179,8 +181,9 @@ class SelectNamedaysState extends State<SelectNamedays> {
 
 class SelectNamedays extends StatefulWidget {
 	final NameDays selectedNameDays;
+	final String calendarID;
 
-	SelectNamedays({Key key,this.selectedNameDays}) : super(key: key);
+	SelectNamedays({Key key, this.calendarID, this.selectedNameDays}) : super(key: key);
 
 	@override
 	State createState() => SelectNamedaysState();
