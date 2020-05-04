@@ -14,7 +14,7 @@ class OverviewScreen extends StatelessWidget {
 	Widget build(BuildContext context) {
 		return Scaffold(
 			appBar: AppBar(
-				title: Text("Επιλεγμένες Eορτές"),
+				title: Text("Επιλεγμένες Eορτές (" + selectedNameDays.nameDaysList.where((nameday) => nameday.eventID == null).length.toString() + ")"),
 			),
 			body: Column(
 				children:[
