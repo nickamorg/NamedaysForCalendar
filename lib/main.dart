@@ -50,7 +50,7 @@ class SavedNamedaysState extends State<SavedNamedays> {
 	}
 
 	Widget loadFloatingActionButtons() {
-		if (calendarID == null) return null;
+		if (calendarID == null || calendarID.isEmpty) return null;
 
 		return Stack(
 			children: <Widget>[
@@ -205,7 +205,6 @@ class SavedNamedaysState extends State<SavedNamedays> {
 				setState(() {
 					calendarID = ""; 
 					noCalendarAvailableDialog(context);
-				
 				});
 
 				return;

@@ -27,7 +27,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 		selectedNameDays = widget.selectedNameDays;
 		calendarID = widget.calendarID;
 
-		if(alreadySavedNamedays == -1) alreadySavedNamedays = selectedNameDays.nameDaysList.length;
+		if (alreadySavedNamedays == -1) alreadySavedNamedays = selectedNameDays.nameDaysList.length;
 		
 		return Scaffold(
 			appBar: AppBar(
@@ -39,7 +39,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 					)
 				],
 			),
-			body: loadNamedays(),
+			body: loadListView(),
 		);
 	}
 
@@ -52,7 +52,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
         ));
 	}
 
-	Widget loadNamedays() {
+	Widget loadListView() {
 		return Column(
 			children:[
 				Container(
@@ -62,7 +62,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 							decoration: InputDecoration(
 								border: new OutlineInputBorder(
 									borderRadius: const BorderRadius.all(
-									const Radius.circular(6.0),
+									    const Radius.circular(6.0),
 									),
 								),
 								hintText: 'Αναζήτηση Ονομαστικής Εορτής',
@@ -75,20 +75,39 @@ class SelectNamedaysState extends State<SelectNamedays> {
 					)
 				),
 				Expanded(
-					child: ListView.builder(
-						padding: const EdgeInsets.all(1.0),
-						itemCount: nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).length + 1,
-						itemBuilder: (BuildContext ctxt, int index) {
-							return index == 0 ? selectAllItem() : loadNameday(nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index - 1]);
-						}
-					)
+					child: loadNamedays()
 				)
 			]
 		);
 	}
 
+    Widget loadNamedays() {
+        int namedaysCount = nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).length;
+        int alreadySavedCount = selectedNameDays.nameDaysList.where((val) => val > searchNdayCtrl.text && val.eventID != null).length;
+
+        if ((namedaysCount - alreadySavedCount) > 1) {
+            namedaysCount++;
+
+            return ListView.builder(
+                padding: const EdgeInsets.all(1.0),
+                itemCount: namedaysCount,
+                itemBuilder: (BuildContext ctxt, int index) {
+                    return index == 0 ? selectAllItem() : loadNameday(nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index - 1]);
+                }
+            );
+        }
+
+        return ListView.builder(
+            padding: const EdgeInsets.all(1.0),
+            itemCount: namedaysCount,
+            itemBuilder: (BuildContext ctxt, int index) {
+               return loadNameday(nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index]);
+            }
+        );
+    }
+    
 	Widget selectAllItem() {
-		bool areAllSelected = selectedNameDays.nameDaysList.length == nameDays.nameDaysList.length;
+		bool areAllSelected = selectedNameDays.nameDaysList.where((nameday) => nameday > searchNdayCtrl.text).length == nameDays.nameDaysList.where((nameday) => nameday > searchNdayCtrl.text).length;
 
 		return new ListTile(
 			leading: Checkbox(
@@ -100,7 +119,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 				style: _biggerFont,
 			),
 			trailing: Text(
-				selectedNameDays.nameDaysList.where((nameday) => nameday.eventID == null).length.toString() + '/' + (nameDays.nameDaysList.length - selectedNameDays.nameDaysList.where((nameday) => nameday.eventID != null).length).toString(),
+				selectedNameDays.nameDaysList.where((nameday) => nameday > searchNdayCtrl.text && nameday.eventID == null).length.toString() + '/' + ((nameDays.nameDaysList.where((nameday) => nameday > searchNdayCtrl.text && nameday.eventID == null).length - selectedNameDays.nameDaysList.where((nameday) => nameday > searchNdayCtrl.text && nameday.eventID != null).length).toString()),
 				style: _biggerFont,
 			),
 			onTap: () {
@@ -111,10 +130,10 @@ class SelectNamedaysState extends State<SelectNamedays> {
 								selectedNameDays.nameDaysList.removeAt(i);
 						}
 					} else {
-						nameDays.nameDaysList.forEach((nameday) {
+						nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).forEach((nameday) {
 							if (!selectedNameDays.nameDaysList.contains(nameday))
 								selectedNameDays.nameDaysList.add(nameday);
-						});
+						}); 
 					}
 				});
 			},

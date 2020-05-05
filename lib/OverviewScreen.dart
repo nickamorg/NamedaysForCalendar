@@ -5,6 +5,7 @@ import 'nameday.dart';
 class OverviewScreen extends StatelessWidget {
 	final NameDays selectedNameDays;
 	final String calendarID;
+    final CalendarEvent event = new CalendarEvent();
 
 	OverviewScreen({Key key, @required this.calendarID, @required this.selectedNameDays}) : super(key: key) {
 		selectedNameDays.sort();
@@ -40,7 +41,7 @@ class OverviewScreen extends StatelessWidget {
 						color: Colors.blue,
 						textColor: Colors.white,
 						padding: EdgeInsets.all(16.0),
-						
+
 						onPressed: () {
 							addNamedaysToCalendar();
 							calendarSyncDialog(context);
@@ -58,8 +59,10 @@ class OverviewScreen extends StatelessWidget {
 	}
 
 	void addNamedaysToCalendar() {
+
 		selectedNameDays.nameDaysList.forEach((nameday) {
-			CalendarEvent event = new CalendarEvent();
+            if (nameday.eventID != null) return;
+
 			event.title = "🎂 Ονομαστική Εορτή: " + nameday.name;
 			event.description = "Σήμερα γιορτάζει ο " + nameday.name + ". Ευχηθείτε του Xρόνια Πολλά.";
 
@@ -71,9 +74,9 @@ class OverviewScreen extends StatelessWidget {
 			event.endDate = new DateTime(year, month, day, 0, 0, 0);
 			event.isAllDay = true;
 			
-			new CalendarPlugin().createEvent(calendarId: calendarID, event: event);
+			new CalendarPlugin().createEvent(calendarId: calendarID, event: event).then((eventID) => nameday.eventID = eventID);
 		});
-	}
+    }
 
 	void calendarSyncDialog(BuildContext context) {
 		showDialog<bool>(
