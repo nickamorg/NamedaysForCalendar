@@ -16,9 +16,8 @@ class MyApp extends StatelessWidget {
 }
 
 class SavedNamedaysState extends State<SavedNamedays> {
-	NameDays nameDays = new NameDays(true);
-	NameDays savedNamedays = new NameDays(false);
-	NameDays selectedNameDays = new NameDays(false);
+	List<NameDay> savedNamedays = new List<NameDay>();
+	List<NameDay> selectedNameDays = new List<NameDay>();
 	final _biggerFont = const TextStyle(fontSize: 18.0);
 	String calendarID;
 
@@ -26,6 +25,7 @@ class SavedNamedaysState extends State<SavedNamedays> {
 	void initState() {
 		super.initState();
 
+        NameDays();
 		loadSavedNamedays();
 	}
 
@@ -65,9 +65,10 @@ class SavedNamedaysState extends State<SavedNamedays> {
 										deleteNamedayEvents();
 									});
 								},
+                                tooltip: "Διαγραφή Επιλεγμένων Εορτών",
 								child: Icon(Icons.delete),
 							),
-							visible: selectedNameDays.nameDaysList.length > 0,
+							visible: selectedNameDays.length > 0,
 						)
 					),
 				),
@@ -77,7 +78,7 @@ class SavedNamedaysState extends State<SavedNamedays> {
 					child: FloatingActionButton(
 						onPressed: (() {
 							setState(() {
-								selectedNameDays.nameDaysList.clear();
+								selectedNameDays.clear();
 							});
 							
 							Navigator.push(
@@ -96,15 +97,15 @@ class SavedNamedaysState extends State<SavedNamedays> {
 	Widget loadNamedays() {
 		return ListView.builder(
 			padding: const EdgeInsets.all(1.0),
-			itemCount: calendarID != null && calendarID.isEmpty ? nameDays.nameDaysList.length : savedNamedays.nameDaysList.length,
+			itemCount: calendarID != null && calendarID.isEmpty ? NameDays.nameDaysList.length : savedNamedays.length,
 			itemBuilder: (BuildContext ctxt, int index) {
-				return loadNameday(calendarID != null && calendarID.isEmpty ? nameDays.nameDaysList[index] : savedNamedays.nameDaysList[index]);
+				return loadNameday(calendarID != null && calendarID.isEmpty ? NameDays.nameDaysList[index] : savedNamedays[index]);
 			}
 		);
 	}
 
 	Widget loadNameday(NameDay pair) {
-		final bool alreadySaved = selectedNameDays != null ? selectedNameDays.nameDaysList.contains(pair) : false;
+		final bool alreadySaved = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
 
 		if (pair.hypocorisms.isNotEmpty) {
 			return new Tooltip(
@@ -123,13 +124,13 @@ class SavedNamedaysState extends State<SavedNamedays> {
 					),
 					onLongPress: calendarID.isEmpty ? null : () {
 						setState(() {
-							alreadySaved ? selectedNameDays.nameDaysList.remove(pair) : selectedNameDays.nameDaysList.add(pair);
+							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 						});
 					},
 
-					onTap: calendarID.isEmpty || selectedNameDays.nameDaysList.length == 0 ? null : () {
+					onTap: calendarID.isEmpty || selectedNameDays.length == 0 ? null : () {
 						setState(() {
-							alreadySaved ? selectedNameDays.nameDaysList.remove(pair) : selectedNameDays.nameDaysList.add(pair);
+							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 						});
 					},
 				)
@@ -147,13 +148,13 @@ class SavedNamedaysState extends State<SavedNamedays> {
 					),
 					onLongPress: calendarID.isEmpty ? null : () {
 						setState(() {
-							alreadySaved ? selectedNameDays.nameDaysList.remove(pair) : selectedNameDays.nameDaysList.add(pair);
+							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 						});
 					},
 
-					onTap: calendarID.isEmpty || selectedNameDays.nameDaysList.length == 0 ? null : () {
+					onTap: calendarID.isEmpty || selectedNameDays.length == 0 ? null : () {
 						setState(() {
-							alreadySaved ? selectedNameDays.nameDaysList.remove(pair) : selectedNameDays.nameDaysList.add(pair);
+							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 						});
 					},
 				),
@@ -194,7 +195,7 @@ class SavedNamedaysState extends State<SavedNamedays> {
 	void loadSavedNamedays() {
 		CalendarPlugin calendarAPI = new CalendarPlugin();
 
-		savedNamedays.nameDaysList.clear();
+		savedNamedays.clear();
 
 		calendarAPI.getCalendars().then((calendars) { 
 			calendars.forEach((val) {
@@ -217,11 +218,11 @@ class SavedNamedaysState extends State<SavedNamedays> {
 							String name = event.title.split(" ")[event.title.split(" ").length - 1];
 							String date = (event.startDate.day < 10? "0" : "") + event.startDate.day.toString() + "-" + (event.startDate.month < 10? "0" : "") + event.startDate.month.toString() + "-" + event.startDate.year.toString();
 
-							savedNamedays.nameDaysList.add(new NameDay(name: name, date: date, eventID: event.eventId));
+							savedNamedays.add(new NameDay(name: name, date: date, eventID: event.eventId));
 						}
 					});
 
-					savedNamedays.sort();
+					savedNamedays.sort((a, b) => a.name.compareTo(b.name));
 				});
 			});
 		});
@@ -230,12 +231,12 @@ class SavedNamedaysState extends State<SavedNamedays> {
 	void deleteNamedayEvents() {
 		CalendarPlugin calendarAPI = new CalendarPlugin();
 
-		selectedNameDays.nameDaysList.forEach((nameday) {
+		selectedNameDays.forEach((nameday) {
 			calendarAPI.deleteEvent(calendarId: calendarID, eventId: nameday.eventID);
-			savedNamedays.nameDaysList.remove(nameday);
+			savedNamedays.remove(nameday);
 		});
 
-		selectedNameDays.nameDaysList.clear();
+		selectedNameDays.clear();
 	}
 }
 

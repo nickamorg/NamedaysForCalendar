@@ -3,11 +3,11 @@ import 'package:manage_calendar_events/manage_calendar_events.dart';
 import 'nameday.dart';
 
 class OverviewScreen extends StatelessWidget {
-	final NameDays selectedNameDays;
+	final List<NameDay> selectedNameDays;
 	final String calendarID;
 
 	OverviewScreen({Key key, @required this.calendarID, @required this.selectedNameDays}) : super(key: key) {
-		selectedNameDays.sort();
+		selectedNameDays.sort((a, b) => a.name.compareTo(b.name));
 	}
 
     @override
@@ -19,7 +19,7 @@ class OverviewScreen extends StatelessWidget {
 
 class OverviewNamedaysState extends State<OverviewNamedays> {
     final CalendarEvent event = new CalendarEvent();
-    NameDays selectedNameDays;
+    List<NameDay> selectedNameDays;
 	String calendarID;
     bool areSaved = false;
     
@@ -30,12 +30,12 @@ class OverviewNamedaysState extends State<OverviewNamedays> {
 
 		return Scaffold(
 			appBar: AppBar(
-				title: Text("Επιλεγμένες Eορτές (" + selectedNameDays.nameDaysList.where((nameday) => nameday.eventID == null).length.toString() + ")"),
+				title: Text("Επιλεγμένες Eορτές (" + selectedNameDays.where((nameday) => nameday.eventID == null).length.toString() + ")"),
 			),
 			body: Column(
 				children:[
 					Expanded(
-						child: ListView(children: selectedNameDays.nameDaysList.where((nameday) => nameday.eventID == null).map(
+						child: ListView(children: selectedNameDays.where((nameday) => nameday.eventID == null).map(
 							(NameDay pair) {
 								return ListTile(
 									title: Text(
@@ -75,7 +75,7 @@ class OverviewNamedaysState extends State<OverviewNamedays> {
 	}
 
 	void addNamedaysToCalendar() {
-		selectedNameDays.nameDaysList.forEach((nameday) {
+		selectedNameDays.forEach((nameday) {
             if (nameday.eventID != null) return;
 
 			event.title = "🎂 Ονομαστική Εορτή: " + nameday.name;
@@ -123,7 +123,7 @@ class OverviewNamedaysState extends State<OverviewNamedays> {
 }
 
 class OverviewNamedays extends StatefulWidget {
-	final NameDays selectedNameDays;
+	final List<NameDay> selectedNameDays;
 	final String calendarID;
 
 	OverviewNamedays({Key key, this.calendarID, this.selectedNameDays}) : super(key: key);
