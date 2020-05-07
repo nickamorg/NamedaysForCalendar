@@ -26,7 +26,7 @@ class NameDay {
 		String newName = Normalizer.normalize(name.toLowerCase());
 		String newHypocorisms = Normalizer.normalize(hypocorisms.toLowerCase());
 
-		return newName.contains(substring) || newHypocorisms.contains(substring) || date.contains(substring);
+		return newName.startsWith(substring) || newHypocorisms.startsWith(substring) || newHypocorisms.contains(", " + substring) || date.contains(substring);
 	}
 }
 

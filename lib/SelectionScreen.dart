@@ -47,9 +47,9 @@ class SelectNamedaysState extends State<SelectNamedays> {
 		Navigator.push(
 			context,
 			MaterialPageRoute(
-				builder: (context) => OverviewScreen(calendarID: calendarID, selectedNameDays: selectedNameDays,
-			),
-        ));
+				builder: (context) => OverviewScreen(calendarID: calendarID, selectedNameDays: selectedNameDays),
+        	)
+		).then((val) => alreadySavedNamedays = selectedNameDays.nameDaysList.length);
 	}
 
 	Widget loadListView() {
@@ -71,6 +71,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 							onChanged: (text) {
 								setState(() {});   // Redraw the Stateful Widget
 							},
+                            autofocus: true,
 						),
 					)
 				),
@@ -85,7 +86,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
         int namedaysCount = nameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).length;
         int alreadySavedCount = selectedNameDays.nameDaysList.where((val) => val > searchNdayCtrl.text && val.eventID != null).length;
 
-        if ((namedaysCount - alreadySavedCount) > 1) {
+        if (alreadySavedCount > 10 || (namedaysCount - alreadySavedCount) > 1) {
             namedaysCount++;
 
             return ListView.builder(

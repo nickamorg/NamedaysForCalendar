@@ -5,14 +5,29 @@ import 'nameday.dart';
 class OverviewScreen extends StatelessWidget {
 	final NameDays selectedNameDays;
 	final String calendarID;
-    final CalendarEvent event = new CalendarEvent();
 
 	OverviewScreen({Key key, @required this.calendarID, @required this.selectedNameDays}) : super(key: key) {
 		selectedNameDays.sort();
 	}
 
-	@override
+    @override
 	Widget build(BuildContext context) {
+		return OverviewNamedays(calendarID: calendarID, selectedNameDays: selectedNameDays);
+	}
+
+}
+
+class OverviewNamedaysState extends State<OverviewNamedays> {
+    final CalendarEvent event = new CalendarEvent();
+    NameDays selectedNameDays;
+	String calendarID;
+    bool areSaved = false;
+    
+    @override
+	Widget build(BuildContext context) {
+        selectedNameDays = widget.selectedNameDays;
+		calendarID = widget.calendarID;
+
 		return Scaffold(
 			appBar: AppBar(
 				title: Text("Επιλεγμένες Eορτές (" + selectedNameDays.nameDaysList.where((nameday) => nameday.eventID == null).length.toString() + ")"),
@@ -34,7 +49,7 @@ class OverviewScreen extends StatelessWidget {
 						)
 					),
 					SizedBox(height: 10),
-					FlatButton(
+				    FlatButton(
 						shape: new RoundedRectangleBorder(
 							borderRadius: new BorderRadius.circular(18.0),
 						),
@@ -42,9 +57,10 @@ class OverviewScreen extends StatelessWidget {
 						textColor: Colors.white,
 						padding: EdgeInsets.all(16.0),
 
-						onPressed: () {
+						onPressed: areSaved ? null : () {
 							addNamedaysToCalendar();
 							calendarSyncDialog(context);
+                            setState(() => areSaved = true );
 						},
 
 						child: Text(
@@ -59,7 +75,6 @@ class OverviewScreen extends StatelessWidget {
 	}
 
 	void addNamedaysToCalendar() {
-
 		selectedNameDays.nameDaysList.forEach((nameday) {
             if (nameday.eventID != null) return;
 
@@ -105,4 +120,14 @@ class OverviewScreen extends StatelessWidget {
 			},
 		);
 	}
+}
+
+class OverviewNamedays extends StatefulWidget {
+	final NameDays selectedNameDays;
+	final String calendarID;
+
+	OverviewNamedays({Key key, this.calendarID, this.selectedNameDays}) : super(key: key);
+
+	@override
+	State createState() => OverviewNamedaysState();
 }
