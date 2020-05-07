@@ -61,5 +61,11 @@
 		{ "name": "Χρυσή",       "date": "30-01", "hypocorisms": "Χρύσα, Χρυσαλία, Χρυσαυγή, Χρυσούλα, Σήλια, Χρυστάλλα, Χρυσταλλία" },
 		{ "name": "Κύρος",       "date": "31-01", "hypocorisms": "Κύρης" },
 		{ "name": "Ευδοξία",     "date": "31-01", "hypocorisms": "Ευδοξούλα, Δόξα, Δοξούλα" }
-    ]
+	],
+
+	"movableNamedays": [
+		{ "name": "Θωμάς",   "daysRange": "+7", "hypocorisms": "Θωμαή"},
+		{ "name": "Τριάδα",  "daysRange": "+50", "hypocorisms": "Τριάς"},
+		{ "name": "Κορίνος", "daysRange": "+50", "hypocorisms": "Κόρη, Κορίνα"}
+	]
 }
