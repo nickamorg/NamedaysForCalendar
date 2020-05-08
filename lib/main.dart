@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:manage_calendar_events/manage_calendar_events.dart';
 import 'NameDay.dart';
 import 'SelectionScreen.dart';
+import 'package:device_calendar/device_calendar.dart';
 
 void main() => runApp(MyApp());
+
+enum Permission {
+	NON_GRANTED, REGECTED, GRANTED
+}
 
 class MyApp extends StatelessWidget {
 	@override
@@ -19,6 +24,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
     final _biggerFont = const TextStyle(fontSize: 18.0);
 	List<NameDay> savedNameDays = new List<NameDay>();
 	List<NameDay> selectedNameDays = new List<NameDay>();
+	Permission calendarPermission = Permission.NON_GRANTED;
 	String calendarID;
 
 	@override
@@ -26,23 +32,15 @@ class SavedNameDaysState extends State<SavedNameDays> {
 		super.initState();
 
         NameDays();
+
 		loadSavedNameDays();
 	}
 
   	@override
 	Widget build(BuildContext context) {
-		if (calendarID == null && savedNameDays == null) {
-			return new Container(
-				margin: const EdgeInsets.all(10.0),
-				color: Colors.blue,
-				width: 48.0,
-				height: 48.0,
-			);
-		}
-		
 		return Scaffold(
 			appBar: AppBar(
-				title: Text(calendarID != null && calendarID.isEmpty ? 'Εορτολόγιο' : 'Αποθηκευμένες Εορτές'),
+				title: Text(calendarPermission != Permission.GRANTED ? 'Εορτολόγιο' : 'Αποθηκευμένες Εορτές'),
 			),
 			body: loadNameDays(),
 			floatingActionButton: loadFloatingActionButtons(),
@@ -50,7 +48,22 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	}
 
 	Widget loadFloatingActionButtons() {
-		if (calendarID == null || calendarID.isEmpty) return null;
+		if (calendarPermission == Permission.NON_GRANTED) return null;
+
+		if (calendarPermission == Permission.REGECTED) {
+			return FloatingActionButton(
+				onPressed: () {
+					new DeviceCalendarPlugin().requestPermissions().then((val) {
+						if(val.data != null && val.data) {
+							readCalendarEvents();
+						}
+					});
+				},
+				tooltip: 'Άδεια Χρήσης Ημερολογίου',
+				child: Icon(Icons.perm_contact_calendar),
+				backgroundColor: Colors.blue,
+			);
+		}
 
 		return Stack(
 			children: <Widget>[
@@ -96,16 +109,12 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	}
 
 	Widget loadNameDays() {
-		return RefreshIndicator (
-			child:
-			ListView.builder(
+		return ListView.builder(
 			padding: const EdgeInsets.all(1.0),
-			itemCount: calendarID != null && calendarID.isEmpty ? NameDays.nameDaysList.length : savedNameDays.length,
+			itemCount: calendarPermission != Permission.GRANTED ? NameDays.nameDaysList.length : savedNameDays.length,
 			itemBuilder: (BuildContext ctxt, int index) {
-				return loadNameDay(calendarID != null && calendarID.isEmpty ? NameDays.nameDaysList[index] : savedNameDays[index]);
+				return loadNameDay(calendarPermission != Permission.GRANTED ? NameDays.nameDaysList[index] : savedNameDays[index]);
 			}
-		),
-		onRefresh: refreshApp,
 		);
 	}
 
@@ -127,12 +136,12 @@ class SavedNameDaysState extends State<SavedNameDays> {
 					trailing: Text(
 						pair.date
 					),
-					onLongPress: calendarID.isEmpty ? null : () {
+					onLongPress: calendarPermission != Permission.GRANTED ? null : () {
 						setState(() {
 							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 						});
 					},
-					onTap: calendarID.isEmpty || selectedNameDays.length == 0 ? null : () {
+					onTap: calendarPermission != Permission.GRANTED || selectedNameDays.length == 0 ? null : () {
 						setState(() {
 							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 						});
@@ -150,12 +159,12 @@ class SavedNameDaysState extends State<SavedNameDays> {
 						pair.date,
 						style: TextStyle(color: alreadySaved != true ? Colors.black : Colors.white),
 					),
-					onLongPress: calendarID.isEmpty ? null : () {
+					onLongPress: calendarPermission != Permission.GRANTED ? null : () {
 						setState(() {
 							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 						});
 					},
-					onTap: calendarID.isEmpty || selectedNameDays.length == 0 ? null : () {
+					onTap: calendarPermission != Permission.GRANTED || selectedNameDays.length == 0 ? null : () {
 						setState(() {
 							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 						});
@@ -164,12 +173,6 @@ class SavedNameDaysState extends State<SavedNameDays> {
 				color: (alreadySaved != true ? Colors.white : Colors.grey),
 			);
 		}
-	}
-
-	Future<void> refreshApp() async {
-		setState(() {
-			loadSavedNameDays();
-		});
 	}
 
 	void noCalendarAvailableDialog(BuildContext context) {
@@ -201,18 +204,51 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	}
 
 	void loadSavedNameDays() {
-		CalendarPlugin calendarAPI = new CalendarPlugin();
+		DeviceCalendarPlugin calendarPlugin = new DeviceCalendarPlugin();
 
 		savedNameDays.clear();
 
+		calendarPlugin.hasPermissions().then((val) {
+			if(val.data) {
+				readCalendarEvents();
+			} else {
+				calendarPlugin.requestPermissions().then((val) {
+					if(val.data != null && val.data) {
+						readCalendarEvents();
+					} else {
+						setState(() { calendarPermission = Permission.REGECTED; });
+					}
+
+				});
+			}
+		});
+
+	}
+
+	void deleteNameDayEvents() {
+		CalendarPlugin calendarAPI = new CalendarPlugin();
+
+		selectedNameDays.forEach((nameDay) {
+			calendarAPI.deleteEvent(calendarId: calendarID, eventId: nameDay.eventID);
+			savedNameDays.remove(nameDay);
+		});
+
+		selectedNameDays.clear();
+	}
+
+	void readCalendarEvents() {
+		CalendarPlugin calendarAPI = new CalendarPlugin();
+
 		calendarAPI.getCalendars().then((calendars) { 
 			calendars.forEach((val) {
-				if (val.name.contains('@gmail.com')) calendarID = val.id;
+				if (val.name.contains('@gmail.com')) {
+					calendarPermission = Permission.GRANTED;
+					calendarID = val.id;
+				}
 			});
 
 			if (calendarID == null) {
 				setState(() {
-					calendarID = ''; 
 					noCalendarAvailableDialog(context);
 				});
 
@@ -234,17 +270,6 @@ class SavedNameDaysState extends State<SavedNameDays> {
 				});
 			});
 		});
-	}
-
-	void deleteNameDayEvents() {
-		CalendarPlugin calendarAPI = new CalendarPlugin();
-
-		selectedNameDays.forEach((nameDay) {
-			calendarAPI.deleteEvent(calendarId: calendarID, eventId: nameDay.eventID);
-			savedNameDays.remove(nameDay);
-		});
-
-		selectedNameDays.clear();
 	}
 }
 
