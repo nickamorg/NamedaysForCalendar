@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:manage_calendar_events/manage_calendar_events.dart';
+import 'package:device_calendar/device_calendar.dart';
 import 'NameDay.dart';
 
 class OverviewScreen extends StatelessWidget {
@@ -17,15 +17,16 @@ class OverviewScreen extends StatelessWidget {
 }
 
 class OverviewNameDaysState extends State<OverviewNameDays> {
-    final CalendarEvent event = new CalendarEvent();
     List<NameDay> selectedNameDays;
 	String calendarID;
+	Event event;
     bool areSaved = false;
     
     @override
 	Widget build(BuildContext context) {
         selectedNameDays = widget.selectedNameDays;
 		calendarID = widget.calendarID;
+		event = new Event(calendarID);
 
 		return Scaffold(
 			appBar: AppBar(
@@ -77,18 +78,18 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
 		selectedNameDays.forEach((nameDay) {
             if (nameDay.eventID != null) return;
 
-			event.title = '🎂 Ονομαστική Εορτή: ' + nameDay.name;
-			event.description = 'Σήμερα γιορτάζει ο ' + nameDay.name + '. Ευχηθείτε του Xρόνια Πολλά.';
+			event.title = '🎂 Ονομαστική Εορτή: ${nameDay.name}';
+			event.description = 'Σήμερα γιορτάζει ο ${nameDay.name} . Ευχηθείτε του Xρόνια Πολλά.';
 
 			int year = int.parse(nameDay.date.split('-')[2]);
 			int month = int.parse(nameDay.date.split('-')[1]);
 			int day = int.parse(nameDay.date.split('-')[0]);
 
-			event.startDate = new DateTime(year, month, day, 0, 0, 0);
-			event.endDate = new DateTime(year, month, day, 0, 0, 0);
-			event.isAllDay = true;
+			event.start = new DateTime(year, month, day, 0, 0, 0);
+			event.end = new DateTime(year, month, day, 0, 0, 0);
+			event.allDay = true;
 			
-			new CalendarPlugin().createEvent(calendarId: calendarID, event: event).then((eventID) => nameDay.eventID = eventID);
+			new DeviceCalendarPlugin().createOrUpdateEvent(event).then((response) => nameDay.eventID = response.data);
 		});
     }
 

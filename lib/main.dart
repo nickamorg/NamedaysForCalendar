@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:manage_calendar_events/manage_calendar_events.dart';
-import 'NameDay.dart';
-import 'SelectionScreen.dart';
 import 'package:device_calendar/device_calendar.dart';
+import 'SelectionScreen.dart';
+import 'NameDay.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,6 +10,7 @@ enum Permission {
 }
 
 class MyApp extends StatelessWidget {
+	
 	@override
 	Widget build(BuildContext context) {
 		return MaterialApp(
@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
 }
 
 class SavedNameDaysState extends State<SavedNameDays> {
+	final DeviceCalendarPlugin calendarAPI = new DeviceCalendarPlugin();
     final _biggerFont = const TextStyle(fontSize: 18.0);
 	List<NameDay> savedNameDays = new List<NameDay>();
 	List<NameDay> selectedNameDays = new List<NameDay>();
@@ -226,10 +227,8 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	}
 
 	void deleteNameDayEvents() {
-		CalendarPlugin calendarAPI = new CalendarPlugin();
-
 		selectedNameDays.forEach((nameDay) {
-			calendarAPI.deleteEvent(calendarId: calendarID, eventId: nameDay.eventID);
+			new DeviceCalendarPlugin().deleteEvent(calendarID, nameDay.eventID);
 			savedNameDays.remove(nameDay);
 		});
 
@@ -237,10 +236,8 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	}
 
 	void readCalendarEvents() {
-		CalendarPlugin calendarAPI = new CalendarPlugin();
-
-		calendarAPI.getCalendars().then((calendars) { 
-			calendars.forEach((val) {
+		new DeviceCalendarPlugin().retrieveCalendars().then((calendars) { 
+			calendars.data.forEach((val) {
 				if (val.name.contains('@gmail.com')) {
 					calendarPermission = Permission.GRANTED;
 					calendarID = val.id;
@@ -254,13 +251,15 @@ class SavedNameDaysState extends State<SavedNameDays> {
 
 				return;
 			}
-
-			calendarAPI.getEvents(calendarId:calendarID).then((val) {
+			
+			int year = new DateTime.now().year;
+			RetrieveEventsParams retrieveEventsParams = new RetrieveEventsParams(startDate: new DateTime(year), endDate:  new DateTime(year, 12, 31));
+			calendarAPI.retrieveEvents(calendarID, retrieveEventsParams).then((val) {
 				setState(() {
-					val.forEach((event) {
-						if (event.title.contains('🎂 Ονομαστική Εορτή: ') && event.startDate.year == new DateTime.now().year) {
+					val.data.forEach((event) {
+						if (event.title.contains('🎂 Ονομαστική Εορτή: ') && event.start.year == new DateTime.now().year) {
 							String name = event.title.split(' ')[event.title.split(' ').length - 1];
-							String date = (event.startDate.day < 10 ? '0' : '') + event.startDate.day.toString() + '-' + (event.startDate.month < 10 ? '0' : '') + event.startDate.month.toString() + '-' + event.startDate.year.toString();
+							String date = (event.start.day < 10 ? '0' : '') + event.end.day.toString() + '-' + (event.start.month < 10 ? '0' : '') + event.start.month.toString() + '-' + event.start.year.toString();
 
 							savedNameDays.add(new NameDay(name: name, date: date, eventID: event.eventId));
 						}

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'NameDay.dart';
 import 'OverviewScreen.dart';
+import 'NameDay.dart';
 
 class SelectionScreen extends StatelessWidget {
 	final List<NameDay> selectedNameDays;
