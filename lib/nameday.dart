@@ -6,7 +6,7 @@ class Normalizer {
 	static List<List<String>> letters = [['ά', 'α'], ['έ', 'ε'], ['ή', 'η'], ['ί', 'ι'], ['ό', 'ο'], ['ύ', 'υ'], ['ώ', 'ω']];
 
 	static String normalize(String str) {
-		letters.forEach((letter) => str = str.replaceAll(letter[0], letter[1])); //text;
+		letters.forEach((letter) => str = str.replaceAll(letter[0], letter[1]));
 
 		return str;
 	}
@@ -41,12 +41,12 @@ class NameDay {
         );
     }
 
-    factory NameDay.fromJsonMovable(Map<String, dynamic> json, int year, int month, int day) {
+    factory NameDay.fromJsonMovable(Map<String, dynamic> json, int day, int month, int year) {
         int milliseconds = new DateTime(year, month, day).millisecondsSinceEpoch;
         String daysRange = json['daysRange'] as String;
 
-        if(daysRange.length == 2) {
-            if(daysRange.substring(0, 1) == '-') {
+        if (daysRange.length == 2) {
+            if (daysRange.substring(0, 1) == '-') {
                 milliseconds -= int.parse(daysRange.substring(1)) * 24 * 60 * 60 * 1000;
             } else {
                 milliseconds += int.parse(daysRange.substring(1)) * 24 * 60 * 60 * 1000;
@@ -59,7 +59,7 @@ class NameDay {
         
         return new NameDay(
             name: json['name'] as String,
-            date: correct.day.toString() + "-" + correct.month.toString() + "-" + correct.year.toString(),
+            date: (correct.day < 10 ? '0' : '') + correct.day.toString() + '-' + (correct.month < 10 ? '0' : '') + correct.month.toString() + '-' + correct.year.toString(),
             hypocorisms: json['hypocorisms'] as String,
         );
     }
@@ -79,15 +79,15 @@ class NameDays {
         }
 
         loadAsset().then((val) {
-            Map<String, dynamic> namedays = jsonDecode(val);
-            namedays["namedays"].forEach((nameday) {
-                nameDaysList.add(NameDay.fromJson(nameday));
+            Map<String, dynamic> nameDays = jsonDecode(val);
+            nameDays['NameDays'].forEach((nameDay) {
+                nameDaysList.add(NameDay.fromJson(nameDay));
             });
 
             calculateEasterDay();
 
-            namedays["movableNamedays"].forEach((nameday) {
-                nameDaysList.add(NameDay.fromJsonMovable(nameday, year, month, day));
+            nameDays['MovableNameDays'].forEach((nameDay) {
+                nameDaysList.add(NameDay.fromJsonMovable(nameDay, day, month, year));
             });
 
             nameDaysList.sort((a, b) {
@@ -97,12 +97,12 @@ class NameDays {
     }
 
     calculateEasterDay() {
-        day  = (((19 * (year % 19) + 16) % 30) + ((2*(year % 4)+4*(year % 7) +6*((19 * (year % 19) + 16) % 30)) %7) + 3);
-        
-        if(day >= 31) {
+        int dblFragment = (19 * (year % 19) + 16) % 30;
+        day  = (dblFragment + ((2 * (year % 4) + 4 * (year % 7) + 6 * (dblFragment)) % 7) + 3);
+
+        if (day >= 31) {
             day = (day - 30);
             month = 5;
         }
     }
-
 }

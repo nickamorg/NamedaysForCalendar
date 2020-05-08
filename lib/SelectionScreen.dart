@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'nameday.dart';
+import 'NameDay.dart';
 import 'OverviewScreen.dart';
 
 class SelectionScreen extends StatelessWidget {
@@ -10,32 +10,31 @@ class SelectionScreen extends StatelessWidget {
 
 	@override
 	Widget build(BuildContext context) {
-		return SelectNamedays(calendarID: calendarID, selectedNameDays: selectedNameDays);
+		return SelectNameDays(calendarID: calendarID, selectedNameDays: selectedNameDays);
 	}
 }
 
-class SelectNamedaysState extends State<SelectNamedays> {
-	NameDays nameDays;
-	List<NameDay> selectedNameDays = new List<NameDay>();
+class SelectNameDaysState extends State<SelectNameDays> {
 	final _biggerFont = const TextStyle(fontSize: 18.0);
-	String calendarID;
 	final searchNdayCtrl = TextEditingController();
-	int alreadySavedNamedays = -1;
+	List<NameDay> selectedNameDays;
+	int alreadySavedNameDays = -1;
+	String calendarID;
 	
   	@override
 	Widget build(BuildContext context) {
 		selectedNameDays = widget.selectedNameDays;
 		calendarID = widget.calendarID;
 
-		if (alreadySavedNamedays == -1) alreadySavedNamedays = selectedNameDays.length;
+		if (alreadySavedNameDays == -1) alreadySavedNameDays = selectedNameDays.length;
 		
 		return Scaffold(
 			appBar: AppBar(
 				title: Text('Επιλογή Εορτών'),
 				actions: <Widget>[
 					Visibility(
-						visible: selectedNameDays.length > alreadySavedNamedays,
-						child: IconButton(icon: Icon(Icons.format_list_numbered), onPressed: selectNamedays),
+						visible: selectedNameDays.length > alreadySavedNameDays,
+						child: IconButton(icon: Icon(Icons.format_list_numbered), tooltip: 'Επισκόπηση Επιλεγμένων', onPressed: selectNameDays),
 					)
 				],
 			),
@@ -43,13 +42,13 @@ class SelectNamedaysState extends State<SelectNamedays> {
 		);
 	}
 
-	void selectNamedays() {
+	void selectNameDays() {
 		Navigator.push(
 			context,
 			MaterialPageRoute(
 				builder: (context) => OverviewScreen(calendarID: calendarID, selectedNameDays: selectedNameDays),
         	)
-		).then((val) => alreadySavedNamedays = selectedNameDays.length);
+		).then((val) => alreadySavedNameDays = selectedNameDays.where((nameDay) => nameDay.eventID != null).length);
 	}
 
 	Widget loadListView() {
@@ -69,46 +68,46 @@ class SelectNamedaysState extends State<SelectNamedays> {
 							),
 							controller: searchNdayCtrl,
 							onChanged: (text) {
-								setState(() {});   // Redraw the Stateful Widget
+								setState(() {});
 							},
                             autofocus: true,
 						),
 					)
 				),
 				Expanded(
-					child: loadNamedays()
+					child: loadNameDays()
 				)
 			]
 		);
 	}
 
-    Widget loadNamedays() {
-        int namedaysCount = NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).length;
+    Widget loadNameDays() {
+        int nameDaysCount = NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).length;
         int alreadySavedCount = selectedNameDays.where((val) => val > searchNdayCtrl.text && val.eventID != null).length;
 
-        if (alreadySavedCount > 10 || (namedaysCount - alreadySavedCount) > 1) {
-            namedaysCount++;
+        if (alreadySavedCount > 10 || (nameDaysCount - alreadySavedCount) > 1) {
+            nameDaysCount++;
 
             return ListView.builder(
                 padding: const EdgeInsets.all(1.0),
-                itemCount: namedaysCount,
+                itemCount: nameDaysCount,
                 itemBuilder: (BuildContext ctxt, int index) {
-                    return index == 0 ? selectAllItem() : loadNameday(NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index - 1]);
+                    return index == 0 ? selectAllItem() : loadNameDay(NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index - 1]);
                 }
             );
         }
 
         return ListView.builder(
             padding: const EdgeInsets.all(1.0),
-            itemCount: namedaysCount,
+            itemCount: nameDaysCount,
             itemBuilder: (BuildContext ctxt, int index) {
-               return loadNameday(NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index]);
+               return loadNameDay(NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index]);
             }
         );
     }
     
 	Widget selectAllItem() {
-		bool areAllSelected = selectedNameDays.where((nameday) => nameday > searchNdayCtrl.text).length == NameDays.nameDaysList.where((nameday) => nameday > searchNdayCtrl.text).length;
+		bool areAllSelected = selectedNameDays.where((nameDay) => nameDay > searchNdayCtrl.text).length == NameDays.nameDaysList.where((nameDay) => nameDay > searchNdayCtrl.text).length;
 
 		return new ListTile(
 			leading: Checkbox(
@@ -120,7 +119,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 				style: _biggerFont,
 			),
 			trailing: Text(
-				selectedNameDays.where((nameday) => nameday > searchNdayCtrl.text && nameday.eventID == null).length.toString() + '/' + ((NameDays.nameDaysList.where((nameday) => nameday > searchNdayCtrl.text && nameday.eventID == null).length - selectedNameDays.where((nameday) => nameday > searchNdayCtrl.text && nameday.eventID != null).length).toString()),
+				selectedNameDays.where((nameDay) => nameDay > searchNdayCtrl.text && nameDay.eventID == null).length.toString() + '/' + ((NameDays.nameDaysList.where((nameDay) => nameDay > searchNdayCtrl.text && nameDay.eventID == null).length - selectedNameDays.where((nameDay) => nameDay > searchNdayCtrl.text && nameDay.eventID != null).length).toString()),
 				style: _biggerFont,
 			),
 			onTap: () {
@@ -131,9 +130,9 @@ class SelectNamedaysState extends State<SelectNamedays> {
 								selectedNameDays.removeAt(i);
 						}
 					} else {
-						NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).forEach((nameday) {
-							if (!selectedNameDays.contains(nameday))
-								selectedNameDays.add(nameday);
+						NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).forEach((nameDay) {
+							if (!selectedNameDays.contains(nameDay))
+								selectedNameDays.add(nameDay);
 						}); 
 					}
 				});
@@ -141,7 +140,7 @@ class SelectNamedaysState extends State<SelectNamedays> {
 		);
 	}
 
-	Widget loadNameday(NameDay pair) {
+	Widget loadNameDay(NameDay pair) {
 		final bool alreadySelected = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
 		final bool alreadySaved = selectedNameDays != null ? (selectedNameDays.indexOf(pair) == -1 ? false : selectedNameDays[selectedNameDays.indexOf(pair)].eventID != null) : false;
 
@@ -199,12 +198,12 @@ class SelectNamedaysState extends State<SelectNamedays> {
 	}
 }
 
-class SelectNamedays extends StatefulWidget {
+class SelectNameDays extends StatefulWidget {
 	final List<NameDay> selectedNameDays;
 	final String calendarID;
 
-	SelectNamedays({Key key, this.calendarID, this.selectedNameDays}) : super(key: key);
+	SelectNameDays({Key key, this.calendarID, this.selectedNameDays}) : super(key: key);
 
 	@override
-	State createState() => SelectNamedaysState();
+	State createState() => SelectNameDaysState();
 }

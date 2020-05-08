@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manage_calendar_events/manage_calendar_events.dart';
-import 'nameday.dart';
+import 'NameDay.dart';
 import 'SelectionScreen.dart';
 
 void main() => runApp(MyApp());
@@ -10,15 +10,15 @@ class MyApp extends StatelessWidget {
 	Widget build(BuildContext context) {
 		return MaterialApp(
 			title: 'Εορτολόγιο',
-			home: SavedNamedays(),
+			home: SavedNameDays(),
 		);
 	}
 }
 
-class SavedNamedaysState extends State<SavedNamedays> {
-	List<NameDay> savedNamedays = new List<NameDay>();
+class SavedNameDaysState extends State<SavedNameDays> {
+    final _biggerFont = const TextStyle(fontSize: 18.0);
+	List<NameDay> savedNameDays = new List<NameDay>();
 	List<NameDay> selectedNameDays = new List<NameDay>();
-	final _biggerFont = const TextStyle(fontSize: 18.0);
 	String calendarID;
 
 	@override
@@ -26,12 +26,12 @@ class SavedNamedaysState extends State<SavedNamedays> {
 		super.initState();
 
         NameDays();
-		loadSavedNamedays();
+		loadSavedNameDays();
 	}
 
   	@override
 	Widget build(BuildContext context) {
-		if(calendarID == null && savedNamedays == null) {
+		if (calendarID == null && savedNameDays == null) {
 			return new Container(
 				margin: const EdgeInsets.all(10.0),
 				color: Colors.blue,
@@ -42,9 +42,9 @@ class SavedNamedaysState extends State<SavedNamedays> {
 		
 		return Scaffold(
 			appBar: AppBar(
-				title: Text('Εορτολόγιο'),
+				title: Text(calendarID != null && calendarID.isEmpty ? 'Εορτολόγιο' : 'Αποθηκευμένες Εορτές'),
 			),
-			body: loadNamedays(),
+			body: loadNameDays(),
 			floatingActionButton: loadFloatingActionButtons(),
 		);
 	}
@@ -62,17 +62,16 @@ class SavedNamedaysState extends State<SavedNamedays> {
 								backgroundColor: Colors.red,
 								onPressed: () {
 									setState(() {
-										deleteNamedayEvents();
+										deleteNameDayEvents();
 									});
 								},
-                                tooltip: "Διαγραφή Επιλεγμένων Εορτών",
+                                tooltip: 'Διαγραφή Επιλεγμένων Εορτών',
 								child: Icon(Icons.delete),
 							),
 							visible: selectedNameDays.length > 0,
 						)
 					),
 				),
-
 				Align(
 					alignment: Alignment.bottomRight,
 					child: FloatingActionButton(
@@ -80,31 +79,37 @@ class SavedNamedaysState extends State<SavedNamedays> {
 							setState(() {
 								selectedNameDays.clear();
 							});
-							
+
 							Navigator.push(
 								context,
 								MaterialPageRoute(
-									builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNamedays,
+									builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNameDays,
 								),
-							)).then((val) => loadSavedNamedays());
+							)).then((val) => loadSavedNameDays());
 						}),
-					child: Icon(Icons.add), tooltip: 'Προσθήκη Εορτών'),
+					    child: Icon(Icons.add),
+                        tooltip: 'Προσθήκη Εορτών'
+                    ),
 				),
 			],
 		);
 	}
 
-	Widget loadNamedays() {
-		return ListView.builder(
+	Widget loadNameDays() {
+		return RefreshIndicator (
+			child:
+			ListView.builder(
 			padding: const EdgeInsets.all(1.0),
-			itemCount: calendarID != null && calendarID.isEmpty ? NameDays.nameDaysList.length : savedNamedays.length,
+			itemCount: calendarID != null && calendarID.isEmpty ? NameDays.nameDaysList.length : savedNameDays.length,
 			itemBuilder: (BuildContext ctxt, int index) {
-				return loadNameday(calendarID != null && calendarID.isEmpty ? NameDays.nameDaysList[index] : savedNamedays[index]);
+				return loadNameDay(calendarID != null && calendarID.isEmpty ? NameDays.nameDaysList[index] : savedNameDays[index]);
 			}
+		),
+		onRefresh: refreshApp,
 		);
 	}
 
-	Widget loadNameday(NameDay pair) {
+	Widget loadNameDay(NameDay pair) {
 		final bool alreadySaved = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
 
 		if (pair.hypocorisms.isNotEmpty) {
@@ -127,7 +132,6 @@ class SavedNamedaysState extends State<SavedNamedays> {
 							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 						});
 					},
-
 					onTap: calendarID.isEmpty || selectedNameDays.length == 0 ? null : () {
 						setState(() {
 							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
@@ -151,7 +155,6 @@ class SavedNamedaysState extends State<SavedNamedays> {
 							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 						});
 					},
-
 					onTap: calendarID.isEmpty || selectedNameDays.length == 0 ? null : () {
 						setState(() {
 							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
@@ -163,6 +166,12 @@ class SavedNamedaysState extends State<SavedNamedays> {
 		}
 	}
 
+	Future<void> refreshApp() async {
+		setState(() {
+			loadSavedNameDays();
+		});
+	}
+
 	void noCalendarAvailableDialog(BuildContext context) {
 		showDialog<bool>(
 			context: context,
@@ -170,7 +179,6 @@ class SavedNamedaysState extends State<SavedNamedays> {
 				return AlertDialog(
 					title: Text('Μη Διαθέσιμο Ημερολόγιο', textAlign: TextAlign.center),
 					titleTextStyle: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 20),
-					
 					content: SingleChildScrollView(
 						child: ListBody(
 							children: <Widget>[
@@ -192,19 +200,19 @@ class SavedNamedaysState extends State<SavedNamedays> {
 		);
 	}
 
-	void loadSavedNamedays() {
+	void loadSavedNameDays() {
 		CalendarPlugin calendarAPI = new CalendarPlugin();
 
-		savedNamedays.clear();
+		savedNameDays.clear();
 
 		calendarAPI.getCalendars().then((calendars) { 
 			calendars.forEach((val) {
-				if (val.name.contains("@gmail.com")) calendarID = val.id;
+				if (val.name.contains('@gmail.com')) calendarID = val.id;
 			});
 
-			if(calendarID == null) {
+			if (calendarID == null) {
 				setState(() {
-					calendarID = ""; 
+					calendarID = ''; 
 					noCalendarAvailableDialog(context);
 				});
 
@@ -214,33 +222,34 @@ class SavedNamedaysState extends State<SavedNamedays> {
 			calendarAPI.getEvents(calendarId:calendarID).then((val) {
 				setState(() {
 					val.forEach((event) {
-						if (event.title.contains("🎂 Ονομαστική Εορτή: ") && event.startDate.year == new DateTime.now().year) {
-							String name = event.title.split(" ")[event.title.split(" ").length - 1];
-							String date = (event.startDate.day < 10? "0" : "") + event.startDate.day.toString() + "-" + (event.startDate.month < 10? "0" : "") + event.startDate.month.toString() + "-" + event.startDate.year.toString();
+						if (event.title.contains('🎂 Ονομαστική Εορτή: ') && event.startDate.year == new DateTime.now().year) {
+							String name = event.title.split(' ')[event.title.split(' ').length - 1];
+							String date = (event.startDate.day < 10 ? '0' : '') + event.startDate.day.toString() + '-' + (event.startDate.month < 10 ? '0' : '') + event.startDate.month.toString() + '-' + event.startDate.year.toString();
 
-							savedNamedays.add(new NameDay(name: name, date: date, eventID: event.eventId));
+							savedNameDays.add(new NameDay(name: name, date: date, eventID: event.eventId));
 						}
 					});
 
-					savedNamedays.sort((a, b) => a.name.compareTo(b.name));
+					savedNameDays.sort((a, b) => a.name.compareTo(b.name));
 				});
 			});
 		});
 	}
 
-	void deleteNamedayEvents() {
+	void deleteNameDayEvents() {
 		CalendarPlugin calendarAPI = new CalendarPlugin();
 
-		selectedNameDays.forEach((nameday) {
-			calendarAPI.deleteEvent(calendarId: calendarID, eventId: nameday.eventID);
-			savedNamedays.remove(nameday);
+		selectedNameDays.forEach((nameDay) {
+			calendarAPI.deleteEvent(calendarId: calendarID, eventId: nameDay.eventID);
+			savedNameDays.remove(nameDay);
 		});
 
 		selectedNameDays.clear();
 	}
 }
 
-class SavedNamedays extends StatefulWidget {
+class SavedNameDays extends StatefulWidget {
+    
 	@override
-	State createState() => SavedNamedaysState();
+	State createState() => SavedNameDaysState();
 }

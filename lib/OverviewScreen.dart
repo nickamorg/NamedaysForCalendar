@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manage_calendar_events/manage_calendar_events.dart';
-import 'nameday.dart';
+import 'NameDay.dart';
 
 class OverviewScreen extends StatelessWidget {
 	final List<NameDay> selectedNameDays;
@@ -12,12 +12,11 @@ class OverviewScreen extends StatelessWidget {
 
     @override
 	Widget build(BuildContext context) {
-		return OverviewNamedays(calendarID: calendarID, selectedNameDays: selectedNameDays);
+		return OverviewNameDays(calendarID: calendarID, selectedNameDays: selectedNameDays);
 	}
-
 }
 
-class OverviewNamedaysState extends State<OverviewNamedays> {
+class OverviewNameDaysState extends State<OverviewNameDays> {
     final CalendarEvent event = new CalendarEvent();
     List<NameDay> selectedNameDays;
 	String calendarID;
@@ -30,12 +29,12 @@ class OverviewNamedaysState extends State<OverviewNamedays> {
 
 		return Scaffold(
 			appBar: AppBar(
-				title: Text("Επιλεγμένες Eορτές (" + selectedNameDays.where((nameday) => nameday.eventID == null).length.toString() + ")"),
+				title: Text('Επιλεγμένες Eορτές (' + selectedNameDays.where((nameDay) => nameDay.eventID == null).length.toString() + ')'),
 			),
 			body: Column(
 				children:[
 					Expanded(
-						child: ListView(children: selectedNameDays.where((nameday) => nameday.eventID == null).map(
+						child: ListView(children: selectedNameDays.where((nameDay) => nameDay.eventID == null).map(
 							(NameDay pair) {
 								return ListTile(
 									title: Text(
@@ -58,7 +57,7 @@ class OverviewNamedaysState extends State<OverviewNamedays> {
 						padding: EdgeInsets.all(16.0),
 
 						onPressed: areSaved ? null : () {
-							addNamedaysToCalendar();
+							addNameDaysToCalendar();
 							calendarSyncDialog(context);
                             setState(() => areSaved = true );
 						},
@@ -74,22 +73,22 @@ class OverviewNamedaysState extends State<OverviewNamedays> {
 		);
 	}
 
-	void addNamedaysToCalendar() {
-		selectedNameDays.forEach((nameday) {
-            if (nameday.eventID != null) return;
+	void addNameDaysToCalendar() {
+		selectedNameDays.forEach((nameDay) {
+            if (nameDay.eventID != null) return;
 
-			event.title = "🎂 Ονομαστική Εορτή: " + nameday.name;
-			event.description = "Σήμερα γιορτάζει ο " + nameday.name + ". Ευχηθείτε του Xρόνια Πολλά.";
+			event.title = '🎂 Ονομαστική Εορτή: ' + nameDay.name;
+			event.description = 'Σήμερα γιορτάζει ο ' + nameDay.name + '. Ευχηθείτε του Xρόνια Πολλά.';
 
-			int year = int.parse(nameday.date.split("-")[2]);
-			int month = int.parse(nameday.date.split("-")[1]);
-			int day = int.parse(nameday.date.split("-")[0]);
+			int year = int.parse(nameDay.date.split('-')[2]);
+			int month = int.parse(nameDay.date.split('-')[1]);
+			int day = int.parse(nameDay.date.split('-')[0]);
 
 			event.startDate = new DateTime(year, month, day, 0, 0, 0);
 			event.endDate = new DateTime(year, month, day, 0, 0, 0);
 			event.isAllDay = true;
 			
-			new CalendarPlugin().createEvent(calendarId: calendarID, event: event).then((eventID) => nameday.eventID = eventID);
+			new CalendarPlugin().createEvent(calendarId: calendarID, event: event).then((eventID) => nameDay.eventID = eventID);
 		});
     }
 
@@ -122,12 +121,12 @@ class OverviewNamedaysState extends State<OverviewNamedays> {
 	}
 }
 
-class OverviewNamedays extends StatefulWidget {
+class OverviewNameDays extends StatefulWidget {
 	final List<NameDay> selectedNameDays;
 	final String calendarID;
 
-	OverviewNamedays({Key key, this.calendarID, this.selectedNameDays}) : super(key: key);
+	OverviewNameDays({Key key, this.calendarID, this.selectedNameDays}) : super(key: key);
 
 	@override
-	State createState() => OverviewNamedaysState();
+	State createState() => OverviewNameDaysState();
 }
