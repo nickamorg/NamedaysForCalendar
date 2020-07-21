@@ -15,19 +15,19 @@ class SelectionScreen extends StatelessWidget {
 }
 
 class SelectNameDaysState extends State<SelectNameDays> {
-	final _biggerFont = const TextStyle(fontSize: 18.0);
+	final fontSize18 = const TextStyle(fontSize: 18);
 	final searchNdayCtrl = TextEditingController();
 	List<NameDay> selectedNameDays;
 	int alreadySavedNameDays = -1;
 	String calendarID;
-	
+
   	@override
 	Widget build(BuildContext context) {
 		selectedNameDays = widget.selectedNameDays;
 		calendarID = widget.calendarID;
 
 		if (alreadySavedNameDays == -1) alreadySavedNameDays = selectedNameDays.length;
-		
+
 		return Scaffold(
 			appBar: AppBar(
 				title: Text('Επιλογή Εορτών'),
@@ -36,9 +36,9 @@ class SelectNameDaysState extends State<SelectNameDays> {
 						visible: selectedNameDays.length > alreadySavedNameDays,
 						child: IconButton(icon: Icon(Icons.format_list_numbered), tooltip: 'Επισκόπηση Επιλεγμένων', onPressed: selectNameDays),
 					)
-				],
+				]
 			),
-			body: loadListView(),
+			body: loadListView()
 		);
 	}
 
@@ -46,7 +46,7 @@ class SelectNameDaysState extends State<SelectNameDays> {
 		Navigator.push(
 			context,
 			MaterialPageRoute(
-				builder: (context) => OverviewScreen(calendarID: calendarID, selectedNameDays: selectedNameDays),
+				builder: (context) => OverviewScreen(calendarID: calendarID, selectedNameDays: selectedNameDays)
         	)
 		).then((val) => alreadySavedNameDays = selectedNameDays.where((nameDay) => nameDay.eventID != null).length);
 	}
@@ -55,14 +55,14 @@ class SelectNameDaysState extends State<SelectNameDays> {
 		return Column(
 			children:[
 				Container(
-					padding: const EdgeInsets.all(20.0),
+					padding: const EdgeInsets.all(20),
 					child: new Center(
 						child: TextField(
 							decoration: InputDecoration(
 								border: new OutlineInputBorder(
 									borderRadius: const BorderRadius.all(
-									    const Radius.circular(6.0),
-									),
+									    const Radius.circular(6),
+									)
 								),
 								hintText: 'Αναζήτηση Ονομαστικής Εορτής',
 							),
@@ -70,8 +70,8 @@ class SelectNameDaysState extends State<SelectNameDays> {
 							onChanged: (text) {
 								setState(() {});
 							},
-                            autofocus: true,
-						),
+                            autofocus: true
+						)
 					)
 				),
 				Expanded(
@@ -89,7 +89,7 @@ class SelectNameDaysState extends State<SelectNameDays> {
             nameDaysCount++;
 
             return ListView.builder(
-                padding: const EdgeInsets.all(1.0),
+                padding: const EdgeInsets.all(1),
                 itemCount: nameDaysCount,
                 itemBuilder: (BuildContext ctxt, int index) {
                     return index == 0 ? selectAllItem() : loadNameDay(NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index - 1]);
@@ -98,7 +98,7 @@ class SelectNameDaysState extends State<SelectNameDays> {
         }
 
         return ListView.builder(
-            padding: const EdgeInsets.all(1.0),
+            padding: const EdgeInsets.all(1),
             itemCount: nameDaysCount,
             itemBuilder: (BuildContext ctxt, int index) {
                return loadNameDay(NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index]);
@@ -116,27 +116,25 @@ class SelectNameDaysState extends State<SelectNameDays> {
 			),
 			title: Text(
 				(areAllSelected ? 'Αποεπιλογή' : 'Επιλογή') + ' Όλων',
-				style: _biggerFont,
+				style: fontSize18
 			),
 			trailing: Text(
 				selectedNameDays.where((nameDay) => nameDay > searchNdayCtrl.text && nameDay.eventID == null).length.toString() + '/' + ((NameDays.nameDaysList.where((nameDay) => nameDay > searchNdayCtrl.text && nameDay.eventID == null).length - selectedNameDays.where((nameDay) => nameDay > searchNdayCtrl.text && nameDay.eventID != null).length).toString()),
-				style: _biggerFont,
+				style: fontSize18
 			),
 			onTap: () {
 				setState(() {
 					if (areAllSelected) {
 						for (var i = selectedNameDays.length - 1; i >= 0; i--) {
-							if (selectedNameDays[i].eventID == null)
-								selectedNameDays.removeAt(i);
+							if (selectedNameDays[i].eventID == null) selectedNameDays.removeAt(i);
 						}
 					} else {
 						NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).forEach((nameDay) {
-							if (!selectedNameDays.contains(nameDay))
-								selectedNameDays.add(nameDay);
+							if (!selectedNameDays.contains(nameDay)) selectedNameDays.add(nameDay);
 						}); 
 					}
 				});
-			},
+			}
 		);
 	}
 
@@ -146,12 +144,12 @@ class SelectNameDaysState extends State<SelectNameDays> {
 
 		if (pair.hypocorisms.isNotEmpty) {
 			return new Tooltip(
-				margin:  const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 0),
+				margin:  const EdgeInsets.fromLTRB(20, 5, 20, 0),
 				textStyle:  const TextStyle(color: Colors.black),
 				decoration: BoxDecoration(
 					color: Colors.white,
-					border: Border.all(color: Colors.black, width: 3.0),
-					borderRadius: BorderRadius.all(Radius.circular(6.0))
+					border: Border.all(color: Colors.black, width: 3),
+					borderRadius: BorderRadius.all(Radius.circular(6))
 				),
 				message: pair.hypocorisms,
 				child: ListTile(
@@ -161,7 +159,7 @@ class SelectNameDaysState extends State<SelectNameDays> {
 					),
 					title: Text(
 						pair.name,
-						style: _biggerFont,
+						style: fontSize18,
 					),
 					trailing: Text(
 						pair.date
@@ -182,7 +180,7 @@ class SelectNameDaysState extends State<SelectNameDays> {
 				),
 				title: Text(
 					pair.name,
-					style: _biggerFont,
+					style: fontSize18,
 				),
 				trailing: Text(
 					pair.date

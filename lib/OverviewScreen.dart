@@ -21,7 +21,7 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
 	String calendarID;
 	Event event;
     bool areSaved = false;
-    
+
     @override
 	Widget build(BuildContext context) {
         selectedNameDays = widget.selectedNameDays;
@@ -43,7 +43,7 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
 									),
 									trailing: Text(
 										pair.date
-									),
+									)
 								);
 							}).toList()
 						)
@@ -51,22 +51,20 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
 					SizedBox(height: 10),
 				    FlatButton(
 						shape: new RoundedRectangleBorder(
-							borderRadius: new BorderRadius.circular(18.0),
+							borderRadius: new BorderRadius.circular(18)
 						),
 						color: Colors.blue,
 						textColor: Colors.white,
-						padding: EdgeInsets.all(16.0),
-
+						padding: EdgeInsets.all(16),
 						onPressed: areSaved ? null : () {
 							addNameDaysToCalendar();
 							calendarSyncDialog(context);
                             setState(() => areSaved = true );
 						},
-
 						child: Text(
 							'Προσθήκη στο Ημερολόγιο',
 							style: TextStyle(fontSize: 20)
-						),	
+						)
 					),
 					SizedBox(height: 10),
 				]
@@ -88,7 +86,12 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
 			event.start = new DateTime(year, month, day, 0, 0, 0);
 			event.end = new DateTime(year, month, day, 0, 0, 0);
 			event.allDay = true;
-			
+            event.reminders = null;
+            event.attendees = null;
+            event.location = null;
+            event.recurrenceRule = null;
+            event.url = null;
+
 			new DeviceCalendarPlugin().createOrUpdateEvent(event).then((response) => nameDay.eventID = response.data);
 		});
     }
@@ -100,24 +103,23 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
 				return AlertDialog(
 					title: Text('Επιτυχής Αποθήκευση', textAlign: TextAlign.center),
 					titleTextStyle: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 20),
-					
 					content: SingleChildScrollView(
 						child: ListBody(
 							children: <Widget>[
 								Text('Οι επιλεγμένες εορτές προστέθηκαν ως γεγονότα στο ημερολόγιο.'),
-							],
-						),
+							]
+						)
 					),
 					actions: <Widget>[
 						FlatButton(
 							child: const Text('OK'),
 							onPressed: () {
 								Navigator.of(context).pop(true);
-							},
-						),
-					],
+							}
+						)
+					]
 				);
-			},
+			}
 		);
 	}
 }

@@ -56,7 +56,7 @@ class NameDay {
         }
 
         DateTime correct = new DateTime.fromMillisecondsSinceEpoch(milliseconds);
-        
+
         return new NameDay(
             name: json['name'] as String,
             date: (correct.day < 10 ? '0' : '') + correct.day.toString() + '-' + (correct.month < 10 ? '0' : '') + correct.month.toString() + '-' + correct.year.toString(),

@@ -10,7 +10,7 @@ enum Permission {
 }
 
 class MyApp extends StatelessWidget {
-	
+
 	@override
 	Widget build(BuildContext context) {
 		return MaterialApp(
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
 
 class SavedNameDaysState extends State<SavedNameDays> {
 	final DeviceCalendarPlugin calendarAPI = new DeviceCalendarPlugin();
-    final _biggerFont = const TextStyle(fontSize: 18.0);
+    final fontSize18 = const TextStyle(fontSize: 18);
 	List<NameDay> savedNameDays = new List<NameDay>();
 	List<NameDay> selectedNameDays = new List<NameDay>();
 	Permission calendarPermission = Permission.NON_GRANTED;
@@ -33,7 +33,6 @@ class SavedNameDaysState extends State<SavedNameDays> {
 		super.initState();
 
         NameDays();
-
 		loadSavedNameDays();
 	}
 
@@ -41,10 +40,10 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	Widget build(BuildContext context) {
 		return Scaffold(
 			appBar: AppBar(
-				title: Text(calendarPermission != Permission.GRANTED ? 'Εορτολόγιο' : 'Αποθηκευμένες Εορτές'),
+				title: Text(calendarPermission != Permission.GRANTED ? 'Εορτολόγιο' : 'Αποθηκευμένες Εορτές')
 			),
 			body: loadNameDays(),
-			floatingActionButton: loadFloatingActionButtons(),
+			floatingActionButton: loadFloatingActionButtons()
 		);
 	}
 
@@ -55,20 +54,21 @@ class SavedNameDaysState extends State<SavedNameDays> {
 			return FloatingActionButton(
 				onPressed: () {
 					new DeviceCalendarPlugin().requestPermissions().then((val) {
-						if(val.data != null && val.data) {
+						if (val.data != null && val.data) {
 							readCalendarEvents();
 						}
 					});
 				},
 				tooltip: 'Άδεια Χρήσης Ημερολογίου',
 				child: Icon(Icons.perm_contact_calendar),
-				backgroundColor: Colors.blue,
+				backgroundColor: Colors.blue
 			);
 		}
 
 		return Stack(
 			children: <Widget>[
-				Padding(padding: EdgeInsets.only(left:31),
+				Padding(
+					padding: EdgeInsets.only(left:31),
 					child: Align(
 						alignment: Alignment.bottomLeft,
 						child: Visibility(
@@ -80,11 +80,11 @@ class SavedNameDaysState extends State<SavedNameDays> {
 									});
 								},
                                 tooltip: 'Διαγραφή Επιλεγμένων Εορτών',
-								child: Icon(Icons.delete),
+								child: Icon(Icons.delete)
 							),
-							visible: selectedNameDays.length > 0,
+							visible: selectedNameDays.length > 0
 						)
-					),
+					)
 				),
 				Align(
 					alignment: Alignment.bottomRight,
@@ -97,21 +97,21 @@ class SavedNameDaysState extends State<SavedNameDays> {
 							Navigator.push(
 								context,
 								MaterialPageRoute(
-									builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNameDays,
+									builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNameDays
 								),
 							)).then((val) => loadSavedNameDays());
 						}),
 					    child: Icon(Icons.add),
                         tooltip: 'Προσθήκη Εορτών'
-                    ),
-				),
-			],
+                    )
+				)
+			]
 		);
 	}
 
 	Widget loadNameDays() {
 		return ListView.builder(
-			padding: const EdgeInsets.all(1.0),
+			padding: const EdgeInsets.all(1),
 			itemCount: calendarPermission != Permission.GRANTED ? NameDays.nameDaysList.length : savedNameDays.length,
 			itemBuilder: (BuildContext ctxt, int index) {
 				return loadNameDay(calendarPermission != Permission.GRANTED ? NameDays.nameDaysList[index] : savedNameDays[index]);
@@ -124,15 +124,15 @@ class SavedNameDaysState extends State<SavedNameDays> {
 
 		if (pair.hypocorisms.isNotEmpty) {
 			return new Tooltip(
-				padding: const EdgeInsets.all(10.0),
-				margin: const EdgeInsets.all(20.0),
+				padding: const EdgeInsets.all(10),
+				margin: const EdgeInsets.all(20),
 				textStyle: const TextStyle(color: Colors.black),
-				decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.black, width: 3.0), borderRadius: BorderRadius.all(Radius.circular(6.0))),
+				decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.black, width: 3), borderRadius: BorderRadius.all(Radius.circular(6))),
 				message: pair.hypocorisms,
 				child: ListTile(
 					title: Text(
 						pair.name,
-						style: _biggerFont,
+						style: fontSize18
 					),
 					trailing: Text(
 						pair.date
@@ -146,7 +146,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 						setState(() {
 							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 						});
-					},
+					}
 				)
 			);
 		} else {
@@ -154,11 +154,11 @@ class SavedNameDaysState extends State<SavedNameDays> {
 				child: ListTile(
 					title: Text(
 						pair.name,
-						style: TextStyle(color: alreadySaved != true ? Colors.black : Colors.white, fontSize: 18),
+						style: TextStyle(color: alreadySaved != true ? Colors.black : Colors.white, fontSize: 18)
 					),
 					trailing: Text(
 						pair.date,
-						style: TextStyle(color: alreadySaved != true ? Colors.black : Colors.white),
+						style: TextStyle(color: alreadySaved != true ? Colors.black : Colors.white)
 					),
 					onLongPress: calendarPermission != Permission.GRANTED ? null : () {
 						setState(() {
@@ -169,9 +169,9 @@ class SavedNameDaysState extends State<SavedNameDays> {
 						setState(() {
 							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 						});
-					},
+					}
 				),
-				color: (alreadySaved != true ? Colors.white : Colors.grey),
+				color: (alreadySaved != true ? Colors.white : Colors.grey)
 			);
 		}
 	}
@@ -187,48 +187,44 @@ class SavedNameDaysState extends State<SavedNameDays> {
 						child: ListBody(
 							children: <Widget>[
 								Icon(Icons.warning),
-								Text('\nΔεν είστε συνδεδεμένος στο Google Calendar.'),
-							],
-						),
+								Text('\nΔεν είστε συνδεδεμένος στο Google Calendar.')
+							]
+						)
 					),
 					actions: <Widget>[
 						FlatButton(
 							child: const Text('OK'),
 							onPressed: () {
 								Navigator.of(context).pop(true);
-							},
-						),
-					],
+							}
+						)
+					]
 				);
-			},
+			}
 		);
 	}
 
 	void loadSavedNameDays() {
-		DeviceCalendarPlugin calendarPlugin = new DeviceCalendarPlugin();
-
 		savedNameDays.clear();
 
-		calendarPlugin.hasPermissions().then((val) {
-			if(val.data) {
+		calendarAPI.hasPermissions().then((val) {
+			if (val.data) {
 				readCalendarEvents();
 			} else {
-				calendarPlugin.requestPermissions().then((val) {
-					if(val.data != null && val.data) {
+				calendarAPI.requestPermissions().then((val) {
+					if (val.data != null && val.data) {
 						readCalendarEvents();
 					} else {
 						setState(() { calendarPermission = Permission.REGECTED; });
 					}
-
 				});
 			}
 		});
-
 	}
 
 	void deleteNameDayEvents() {
 		selectedNameDays.forEach((nameDay) {
-			new DeviceCalendarPlugin().deleteEvent(calendarID, nameDay.eventID);
+			calendarAPI.deleteEvent(calendarID, nameDay.eventID);
 			savedNameDays.remove(nameDay);
 		});
 
@@ -236,7 +232,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	}
 
 	void readCalendarEvents() {
-		new DeviceCalendarPlugin().retrieveCalendars().then((calendars) { 
+		calendarAPI.retrieveCalendars().then((calendars) { 
 			calendars.data.forEach((val) {
 				if (val.name.contains('@gmail.com')) {
 					calendarPermission = Permission.GRANTED;
@@ -251,9 +247,10 @@ class SavedNameDaysState extends State<SavedNameDays> {
 
 				return;
 			}
-			
+
 			int year = new DateTime.now().year;
 			RetrieveEventsParams retrieveEventsParams = new RetrieveEventsParams(startDate: new DateTime(year), endDate:  new DateTime(year, 12, 31));
+
 			calendarAPI.retrieveEvents(calendarID, retrieveEventsParams).then((val) {
 				setState(() {
 					val.data.forEach((event) {
@@ -264,7 +261,6 @@ class SavedNameDaysState extends State<SavedNameDays> {
 							savedNameDays.add(new NameDay(name: name, date: date, eventID: event.eventId));
 						}
 					});
-
 					savedNameDays.sort((a, b) => a.name.compareTo(b.name));
 				});
 			});
@@ -273,7 +269,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 }
 
 class SavedNameDays extends StatefulWidget {
-    
+
 	@override
 	State createState() => SavedNameDaysState();
 }
