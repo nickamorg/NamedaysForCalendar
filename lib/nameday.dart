@@ -18,7 +18,7 @@ class NameDay {
 	String hypocorisms;
 	String eventID;
 
-	NameDay({this.name, this.date, this.hypocorisms = "", this.eventID});
+	NameDay({this.name, this.date, this.hypocorisms = '', this.eventID});
 
 	@override
 	bool operator ==(Object other) => other is NameDay && other.date == date && other.name == name;
@@ -30,13 +30,13 @@ class NameDay {
 		String newName = Normalizer.normalize(name.toLowerCase());
 		String newHypocorisms = Normalizer.normalize(hypocorisms.toLowerCase());
 
-		return newName.startsWith(substring) || newHypocorisms.startsWith(substring) || newHypocorisms.contains(", " + substring) || date.contains(substring);
+		return newName.startsWith(substring) || newHypocorisms.startsWith(substring) || newHypocorisms.contains(', ' + substring) || date.contains(substring);
 	}
 
     factory NameDay.fromJson(Map<String, dynamic> json) {
         return new NameDay(
             name: json['name'] as String,
-            date: (json['date'] as String) + "-" + new DateTime.now().year.toString(),
+            date: (json['date'] as String) + '-' + new DateTime.now().year.toString(),
             hypocorisms: json['hypocorisms'] as String,
         );
     }
