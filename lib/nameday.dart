@@ -45,15 +45,7 @@ class NameDay {
         int milliseconds = new DateTime(year, month, day).millisecondsSinceEpoch;
         String daysRange = json['daysRange'] as String;
 
-        if (daysRange.length == 2) {
-            if (daysRange.substring(0, 1) == '-') {
-                milliseconds -= int.parse(daysRange.substring(1)) * 24 * 60 * 60 * 1000;
-            } else {
-                milliseconds += int.parse(daysRange.substring(1)) * 24 * 60 * 60 * 1000;
-            }
-        } else {
-            milliseconds += int.parse(daysRange) * 24 * 60 * 60 * 1000;
-        }
+		milliseconds += int.parse(daysRange) * 24 * 60 * 60 * 1000;
 
         DateTime correct = new DateTime.fromMillisecondsSinceEpoch(milliseconds);
 
@@ -62,6 +54,36 @@ class NameDay {
             date: (correct.day < 10 ? '0' : '') + correct.day.toString() + '-' + (correct.month < 10 ? '0' : '') + correct.month.toString() + '-' + correct.year.toString(),
             hypocorisms: json['hypocorisms'] as String,
         );
+    }
+
+	factory NameDay.fromJsonSpecial(Map<String, dynamic> json, int day, int month, int year) {
+		DateTime correct;
+
+		if (json['name'] == 'Χλόη') {
+			correct = DateTime(year, 2, 13);
+			correct = DateTime(year, 2, 13 + 7 - correct.weekday);
+		} else if(json['name'] == 'Γεωργία' || json['name'] == 'Γεώργιος') {
+			correct = DateTime(year, 4, 23);
+
+			if (month == 5 || (month == 4 && day > 23)) {
+				correct = DateTime(year, month, day + 1);
+			}
+		} else if(json['name'] == 'Μάρκος') {
+			correct = DateTime(year, 4, 25);
+
+			if (month == 5 || (month == 4 && day > 23)) {
+				correct = DateTime(year, month, day + 2);
+			}
+		} else {
+			correct = DateTime(year, 12, 11);
+			correct = DateTime(year, 12, 11 + 7 - correct.weekday);
+		}
+
+		return NameDay(
+			name: json['name'] as String,
+            date: (correct.day < 10 ? '0' : '') + correct.day.toString() + '-' + (correct.month < 10 ? '0' : '') + correct.month.toString() + '-' + correct.year.toString(),
+			hypocorisms: json['hypocorisms'] as String,
+		);
     }
 }
 
@@ -88,6 +110,10 @@ class NameDays {
 
             nameDays['MovableNameDays'].forEach((nameDay) {
                 nameDaysList.add(NameDay.fromJsonMovable(nameDay, day, month, year));
+            });
+
+			nameDays['SpecialNameDays'].forEach((nameDay) {
+                nameDaysList.add(NameDay.fromJsonSpecial(nameDay, day, month, year));
             });
 
             nameDaysList.sort((a, b) {
