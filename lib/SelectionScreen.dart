@@ -30,16 +30,20 @@ class SelectNameDaysState extends State<SelectNameDays> {
 
 		return Scaffold(
 			appBar: AppBar(
-				title: Text('Επιλογή Εορτών'),
-				actions: <Widget>[
-					Visibility(
-						visible: selectedNameDays.length > alreadySavedNameDays,
-						child: IconButton(icon: Icon(Icons.format_list_numbered), tooltip: 'Επισκόπηση Επιλεγμένων', onPressed: selectNameDays),
-					)
-				]
+				title: Text('Επιλογή Εορτών')
 			),
-			body: loadListView()
-		);
+			body: loadListView(),
+			floatingActionButton: AnimatedOpacity(
+						opacity: selectedNameDays.length > alreadySavedNameDays ? 1.0 : 0.0,
+						duration: Duration(milliseconds: 500),
+						child: FloatingActionButton.extended(
+							onPressed: selectedNameDays.length <= alreadySavedNameDays ? null : selectNameDays,
+							icon: Icon(Icons.format_list_numbered),
+							label: Text("Επιλογή"),
+							backgroundColor: Colors.blue
+						)
+					)
+			);
 	}
 
 	void selectNameDays() {
@@ -83,19 +87,6 @@ class SelectNameDaysState extends State<SelectNameDays> {
 
     Widget loadNameDays() {
         int nameDaysCount = NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).length;
-        int alreadySavedCount = selectedNameDays.where((val) => val > searchNdayCtrl.text && val.eventID != null).length;
-
-        if (alreadySavedCount > 10 || (nameDaysCount - alreadySavedCount) > 1) {
-            nameDaysCount++;
-
-            return ListView.builder(
-                padding: const EdgeInsets.all(1),
-                itemCount: nameDaysCount,
-                itemBuilder: (BuildContext ctxt, int index) {
-                    return index == 0 ? selectAllItem() : loadNameDay(NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).toList(growable: true)[index - 1]);
-                }
-            );
-        }
 
         return ListView.builder(
             padding: const EdgeInsets.all(1),
@@ -105,38 +96,6 @@ class SelectNameDaysState extends State<SelectNameDays> {
             }
         );
     }
-    
-	Widget selectAllItem() {
-		bool areAllSelected = selectedNameDays.where((nameDay) => nameDay > searchNdayCtrl.text).length == NameDays.nameDaysList.where((nameDay) => nameDay > searchNdayCtrl.text).length;
-
-		return new ListTile(
-			leading: Checkbox(
-				value: areAllSelected,
-				onChanged: null,
-			),
-			title: Text(
-				(areAllSelected ? 'Αποεπιλογή' : 'Επιλογή') + ' Όλων',
-				style: fontSize18
-			),
-			trailing: Text(
-				selectedNameDays.where((nameDay) => nameDay > searchNdayCtrl.text && nameDay.eventID == null).length.toString() + '/' + ((NameDays.nameDaysList.where((nameDay) => nameDay > searchNdayCtrl.text && nameDay.eventID == null).length - selectedNameDays.where((nameDay) => nameDay > searchNdayCtrl.text && nameDay.eventID != null).length).toString()),
-				style: fontSize18
-			),
-			onTap: () {
-				setState(() {
-					if (areAllSelected) {
-						for (var i = selectedNameDays.length - 1; i >= 0; i--) {
-							if (selectedNameDays[i].eventID == null) selectedNameDays.removeAt(i);
-						}
-					} else {
-						NameDays.nameDaysList.where((val) => val > searchNdayCtrl.text).forEach((nameDay) {
-							if (!selectedNameDays.contains(nameDay)) selectedNameDays.add(nameDay);
-						}); 
-					}
-				});
-			}
-		);
-	}
 
 	Widget loadNameDay(NameDay pair) {
 		final bool alreadySelected = selectedNameDays != null ? selectedNameDays.contains(pair) : false;

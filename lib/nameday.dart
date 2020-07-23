@@ -21,11 +21,11 @@ class NameDay {
 	NameDay({this.name, this.date, this.hypocorisms = '', this.eventID});
 
 	@override
-	bool operator ==(Object other) => other is NameDay && other.date == date && other.name == name;
+	bool operator == (Object other) => other is NameDay && other.date == date && other.name == name;
 
   	int get hashCode => name.hashCode ^ name.hashCode ^ hypocorisms.hashCode;
 
-	bool operator >(String other) {
+	bool operator > (String other) {
 		String substring = Normalizer.normalize(other.toLowerCase());
 		String newName = Normalizer.normalize(name.toLowerCase());
 		String newHypocorisms = Normalizer.normalize(hypocorisms.toLowerCase());

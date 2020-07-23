@@ -51,7 +51,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 		if (calendarPermission == Permission.NON_GRANTED) return null;
 
 		if (calendarPermission == Permission.REGECTED) {
-			return 	Tooltip(
+			return Tooltip(
 				message: "Άδεια Χρήσης Ημερολογίου",
 				padding: const EdgeInsets.all(10),
 				margin: const EdgeInsets.only(bottom: 10),
@@ -70,7 +70,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 		}
 
 		return Stack(
-			children: <Widget>[
+			children: [
 				Padding(
 					padding: EdgeInsets.only(left:31),
 					child: Align(
