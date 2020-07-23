@@ -34,22 +34,22 @@ class NameDay {
 	}
 
     factory NameDay.fromJson(Map<String, dynamic> json) {
-        return new NameDay(
+        return NameDay(
             name: json['name'] as String,
-            date: (json['date'] as String) + '-' + new DateTime.now().year.toString(),
+            date: (json['date'] as String) + '-' + DateTime.now().year.toString(),
             hypocorisms: json['hypocorisms'] as String,
         );
     }
 
     factory NameDay.fromJsonMovable(Map<String, dynamic> json, int day, int month, int year) {
-        int milliseconds = new DateTime(year, month, day).millisecondsSinceEpoch;
+        int milliseconds = DateTime(year, month, day).millisecondsSinceEpoch;
         String daysRange = json['daysRange'] as String;
 
 		milliseconds += int.parse(daysRange) * 24 * 60 * 60 * 1000;
 
-        DateTime correct = new DateTime.fromMillisecondsSinceEpoch(milliseconds);
+        DateTime correct = DateTime.fromMillisecondsSinceEpoch(milliseconds);
 
-        return new NameDay(
+        return NameDay(
             name: json['name'] as String,
             date: (correct.day < 10 ? '0' : '') + correct.day.toString() + '-' + (correct.month < 10 ? '0' : '') + correct.month.toString() + '-' + correct.year.toString(),
             hypocorisms: json['hypocorisms'] as String,
@@ -89,12 +89,12 @@ class NameDay {
 
 class NameDays {
 	static List<NameDay> nameDaysList;
-    final int year = new DateTime.now().year;
+    final int year = DateTime.now().year;
     int day;
     int month = 4;
 
     NameDays() {
-		nameDaysList = new List<NameDay>();
+		nameDaysList = List<NameDay>();
 
         Future<String> loadAsset() async {
             return await rootBundle.loadString('assets/namedays.json');

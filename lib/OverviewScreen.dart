@@ -23,82 +23,114 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
 	Event event;
     bool areSaved = false;
     bool isButtonLocked = false;
+	String displayedHypocorisms;
+
+	@override
+  	void initState() {
+    	super.initState();
+
+		displayedHypocorisms = null;
+	}
 
     @override
 	Widget build(BuildContext context) {
         selectedNameDays = widget.selectedNameDays;
 		calendarID = widget.calendarID;
-		event = new Event(calendarID);
+		event = Event(calendarID);
+        int selectedNameDaysCount = selectedNameDays.where((nameDay) => nameDay.eventID == null).length;
 
 		return Scaffold(
 			appBar: AppBar(
-				title: Text('Επιλεγμένες Eορτές (' + selectedNameDays.where((nameDay) => nameDay.eventID == null).length.toString() + ')'),
+				title: Text('Επιλεγμένες Eορτές' + (selectedNameDaysCount > 0 ? (' (' + selectedNameDaysCount.toString() + ')') : '')),
 			),
-			body: Column(
-				children:[
-					Expanded(
-						child: ListView(children: selectedNameDays.where((nameDay) => nameDay.eventID == null).map(
-							(NameDay pair) {
-								return ListTile(
-									title: Text(
-										pair.name,
-									),
-									trailing: Text(
-										pair.date
-									)
-								);
-							}).toList()
-						)
-					),
-					SizedBox(height: 10),
-                    areSaved ? Container(
-                        width: 150,
-                        height: 50,
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-							children: [
-                                Icon(Icons.check, color: Colors.white),
-							    Text("Προστέθηκαν", style: TextStyle(color: Colors.white)),
-							],
-                        ),
-                        decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.all(Radius.circular(50)),
-                        ),
-                    )
-                    :
-                    isButtonLocked ? Center(
-                        child: Container(
-                            height: 50,
-                            width: 50,
-                            child: CircularProgressIndicator(
-                                valueColor: new AlwaysStoppedAnimation<Color>(Colors.red),
-                                strokeWidth: 10,
+			body: Stack(
+                alignment: Alignment.center,
+                children: [
+                    Column(
+                        children:[
+                            Expanded(
+                                child: ListView(children: selectedNameDays.where((nameDay) => nameDay.eventID == null).map(
+                                    (NameDay pair) {
+                                        return GestureDetector(
+                                            child: ListTile(
+                                                title: Text(pair.name),
+                                                trailing: Text(pair.date)
+                                            ),
+                                            onLongPress: pair.hypocorisms.isEmpty ? null :() {
+                                                displayedHypocorisms = pair.hypocorisms;
+                                                setState(() { });
+                                            },
+                                            onLongPressUp: pair.hypocorisms.isEmpty ? null :() {
+                                                displayedHypocorisms = null;
+                                                setState(() { });
+                                            }
+                                        );
+                                    }).toList()
+                                )
                             ),
+                            SizedBox(height: 10),
+                            areSaved ? Container(
+                                width: 150,
+                                height: 50,
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                        Icon(Icons.check, color: Colors.white),
+                                        Text("Προστέθηκαν", style: TextStyle(color: Colors.white))
+                                    ]
+                                ),
+                                decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.all(Radius.circular(50))
+                                )
+                            )
+                            :
+                            isButtonLocked ? Center(
+                                child: Container(
+                                    height: 50,
+                                    width: 50,
+                                    child: CircularProgressIndicator(
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                                        strokeWidth: 10
+                                    )
+                                )
+                            )
+                            :
+                            FlatButton(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18)
+                                ),
+                                color: Colors.blue,
+                                textColor: Colors.white,
+                                padding: EdgeInsets.all(16),
+                                onPressed: areSaved ? null : () {
+                                    setState(() {
+                                        isButtonLocked = true;
+                                    });
+                                    addNameDaysToCalendar();
+                                },
+                                child: Text('Προσθήκη στο Ημερολόγιο', style: TextStyle(fontSize: 18))
+                            ),
+                            SizedBox(height: 10)
+                        ]
+                    ),
+                    displayedHypocorisms != null ?
+                    Positioned(
+                        bottom: 5,
+                        child: Card(
+                            child: Container(
+                                alignment: Alignment.center,
+                                height: 100,
+                                padding: const EdgeInsets.all(20),
+                                width: MediaQuery.of(context).size.width - 40,
+                                child: Text(displayedHypocorisms, textAlign: TextAlign.center)
+                            )
                         )
                     )
                     :
-				    FlatButton(
-						shape: new RoundedRectangleBorder(
-							borderRadius: new BorderRadius.circular(18)
-						),
-						color: Colors.blue,
-						textColor: Colors.white,
-						padding: EdgeInsets.all(16),
-						onPressed: areSaved ? null : () {
-                            setState(() {
-                                isButtonLocked = true;
-                            });
-							addNameDaysToCalendar();
-						},
-						child: Text(
-							'Προσθήκη στο Ημερολόγιο',
-							style: TextStyle(fontSize: 20)
-						)
-					),
-					SizedBox(height: 10),
-				]
-			)
+                    SizedBox.shrink()
+                ]
+            )
 		);
 	}
 
@@ -115,8 +147,8 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
 			int month = int.parse(nameDay.date.split('-')[1]);
 			int day = int.parse(nameDay.date.split('-')[0]);
 
-			event.start = new DateTime(year, month, day, 0, 0, 0);
-			event.end = new DateTime(year, month, day, 0, 0, 0);
+			event.start = DateTime(year, month, day, 0, 0, 0);
+			event.end = DateTime(year, month, day, 0, 0, 0);
 			event.allDay = true;
             event.reminders = null;
             event.attendees = null;
@@ -124,7 +156,7 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
             event.recurrenceRule = null;
             event.url = null;
 
-			new DeviceCalendarPlugin().createOrUpdateEvent(event).then((response) {
+			DeviceCalendarPlugin().createOrUpdateEvent(event).then((response) {
                 counter--;
 
                 if (response.errorMessages.isNotEmpty) {
@@ -148,6 +180,7 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
 
 	void calendarSyncDialog() {
 		showDialog<bool>(
+            barrierDismissible: false,
 			context: context,
 			builder: (BuildContext context) {
 				return AlertDialog(
@@ -165,7 +198,7 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
 							child: Text('OK', style: TextStyle(color: areSaved ? Colors.blue : Colors.red)),
 							onPressed: () {
 								Navigator.of(context).pop(true);
-                                
+
                                 if (areSaved) {
                                     Navigator.of(context).pop(true);
                                     Navigator.of(context).pop(true);

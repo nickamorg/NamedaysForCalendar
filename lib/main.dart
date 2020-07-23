@@ -21,17 +21,19 @@ class MyApp extends StatelessWidget {
 }
 
 class SavedNameDaysState extends State<SavedNameDays> {
-	final DeviceCalendarPlugin calendarAPI = new DeviceCalendarPlugin();
+	final DeviceCalendarPlugin calendarAPI = DeviceCalendarPlugin();
     final fontSize18 = const TextStyle(fontSize: 18);
-	List<NameDay> savedNameDays = new List<NameDay>();
-	List<NameDay> selectedNameDays = new List<NameDay>();
+	List<NameDay> savedNameDays = List<NameDay>();
+	List<NameDay> selectedNameDays = List<NameDay>();
 	Permission calendarPermission = Permission.NON_GRANTED;
 	String calendarID;
+	String displayedHypocorisms;
 
 	@override
 	void initState() {
 		super.initState();
 
+		displayedHypocorisms = null;
         NameDays();
 		loadSavedNameDays();
 	}
@@ -42,7 +44,39 @@ class SavedNameDaysState extends State<SavedNameDays> {
 			appBar: AppBar(
 				title: Text(calendarPermission != Permission.GRANTED ? 'Εορτολόγιο' : 'Αποθηκευμένες Εορτές')
 			),
-			body: loadNameDays(),
+			body: savedNameDays.length == 0 && calendarPermission != Permission.REGECTED?
+			Center(
+				child: Container(
+					padding: const EdgeInsets.all(20),
+					child: Text(
+						"Δεν βρέθηκε καμία αποθηκευμένη εορτή στο ημερολόγιο",
+						style: fontSize18,
+						textAlign: TextAlign.center
+					)
+				)
+			)
+			:
+			Stack(
+				alignment: Alignment.center,
+				children: [
+					loadNameDays(),
+					displayedHypocorisms != null ?
+					Positioned(
+						top: 5,
+						child: Card(
+							child: Container(
+								alignment: Alignment.center,
+								height: 100,
+								padding: const EdgeInsets.all(20),
+								width: MediaQuery.of(context).size.width - 40,
+								child: Text(displayedHypocorisms, textAlign: TextAlign.center)
+							)
+						)
+					)
+					:
+					SizedBox.shrink()
+				]
+			),
 			floatingActionButton: loadFloatingActionButtons()
 		);
 	}
@@ -57,7 +91,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 				margin: const EdgeInsets.only(bottom: 10),
 				child: FloatingActionButton(
 					onPressed: () {
-						new DeviceCalendarPlugin().requestPermissions().then((val) {
+						DeviceCalendarPlugin().requestPermissions().then((val) {
 							if (val.data != null && val.data) {
 								readCalendarEvents();
 							}
@@ -76,7 +110,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 					child: Align(
 						alignment: Alignment.bottomLeft,
 						child: AnimatedOpacity(
-							opacity: selectedNameDays.length > 0 ? 1.0 : 0.0,
+							opacity: selectedNameDays.length > 0 ? 1 : 0,
 							duration: Duration(milliseconds: 500),
 							child: Tooltip(
 								message: "Διαγραφή Επιλεγμένων Εορτών",
@@ -99,7 +133,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 				Align(
 					alignment: Alignment.bottomRight,
 					child: AnimatedOpacity(
-						opacity: selectedNameDays.length == 0 ? 1.0 : 0.0,
+						opacity: selectedNameDays.length == 0 ? 1 : 0,
 						duration: Duration(milliseconds: 500),
 						child: Tooltip(
 							message: "Προσθήκη Εορτών",
@@ -120,7 +154,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 									)).then((val) => loadSavedNameDays());
 								}),
 								child: Icon(Icons.add)
-							),
+							)
 						)
 					)
 				)
@@ -141,21 +175,12 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	Widget loadNameDay(NameDay pair) {
 		final bool alreadySaved = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
 
-		if (pair.hypocorisms.isNotEmpty) {
-			return new Tooltip(
-				padding: const EdgeInsets.all(10),
-				margin: const EdgeInsets.all(20),
-				textStyle: const TextStyle(color: Colors.black),
-				decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.black, width: 3), borderRadius: BorderRadius.all(Radius.circular(6))),
-				message: pair.hypocorisms,
+		return GestureDetector(
+			child: Container(
+				color: (alreadySaved != true ? Colors.white : Colors.grey),
 				child: ListTile(
-					title: Text(
-						pair.name,
-						style: fontSize18
-					),
-					trailing: Text(
-						pair.date
-					),
+					title: Text(pair.name),
+					trailing: Text(pair.date),
 					onLongPress: calendarPermission != Permission.GRANTED ? null : () {
 						setState(() {
 							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
@@ -167,32 +192,16 @@ class SavedNameDaysState extends State<SavedNameDays> {
 						});
 					}
 				)
-			);
-		} else {
-			return new Container(
-				child: ListTile(
-					title: Text(
-						pair.name,
-						style: TextStyle(color: alreadySaved != true ? Colors.black : Colors.white, fontSize: 18)
-					),
-					trailing: Text(
-						pair.date,
-						style: TextStyle(color: alreadySaved != true ? Colors.black : Colors.white)
-					),
-					onLongPress: calendarPermission != Permission.GRANTED ? null : () {
-						setState(() {
-							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
-						});
-					},
-					onTap: calendarPermission != Permission.GRANTED || selectedNameDays.length == 0 ? null : () {
-						setState(() {
-							alreadySaved ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
-						});
-					}
-				),
-				color: (alreadySaved != true ? Colors.white : Colors.grey)
-			);
-		}
+			),
+			onLongPress: pair.hypocorisms.isEmpty ? null : () {
+				displayedHypocorisms = pair.hypocorisms;
+				setState(() { });
+			},
+			onLongPressUp: pair.hypocorisms.isEmpty ? null : () {
+				displayedHypocorisms = null;
+				setState(() { });
+			}
+		);
 	}
 
 	void noCalendarAvailableDialog(BuildContext context) {
@@ -267,17 +276,17 @@ class SavedNameDaysState extends State<SavedNameDays> {
 				return;
 			}
 
-			int year = new DateTime.now().year;
-			RetrieveEventsParams retrieveEventsParams = new RetrieveEventsParams(startDate: new DateTime(year), endDate:  new DateTime(year, 12, 31));
+			int year = DateTime.now().year;
+			RetrieveEventsParams retrieveEventsParams = RetrieveEventsParams(startDate: DateTime(year), endDate:  DateTime(year, 12, 31));
 
 			calendarAPI.retrieveEvents(calendarID, retrieveEventsParams).then((val) {
 				setState(() {
 					val.data.forEach((event) {
-						if (event.title.contains('🎂 Ονομαστική Εορτή: ') && event.start.year == new DateTime.now().year) {
+						if (event.title.contains('🎂 Ονομαστική Εορτή: ') && event.start.year == DateTime.now().year) {
 							String name = event.title.split(' ')[event.title.split(' ').length - 1];
 							String date = (event.start.day < 10 ? '0' : '') + event.end.day.toString() + '-' + (event.start.month < 10 ? '0' : '') + event.start.month.toString() + '-' + event.start.year.toString();
 
-							savedNameDays.add(new NameDay(name: name, date: date, eventID: event.eventId));
+							savedNameDays.add(NameDay(name: name, date: date, eventID: event.eventId));
 						}
 					});
 					savedNameDays.sort((a, b) => a.name.compareTo(b.name));

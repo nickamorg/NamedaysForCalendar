@@ -20,6 +20,14 @@ class SelectNameDaysState extends State<SelectNameDays> {
 	List<NameDay> selectedNameDays;
 	int alreadySavedNameDays = -1;
 	String calendarID;
+	String displayedHypocorisms;
+
+	@override
+  	void initState() {
+    	super.initState();
+
+		displayedHypocorisms = null;
+	}
 
   	@override
 	Widget build(BuildContext context) {
@@ -34,12 +42,12 @@ class SelectNameDaysState extends State<SelectNameDays> {
 			),
 			body: loadListView(),
 			floatingActionButton: AnimatedOpacity(
-						opacity: selectedNameDays.length > alreadySavedNameDays ? 1.0 : 0.0,
+						opacity: selectedNameDays.length > alreadySavedNameDays ? 1 : 0,
 						duration: Duration(milliseconds: 500),
 						child: FloatingActionButton.extended(
 							onPressed: selectedNameDays.length <= alreadySavedNameDays ? null : selectNameDays,
 							icon: Icon(Icons.format_list_numbered),
-							label: Text("Επιλογή"),
+							label: Text("Επιλογή (${selectedNameDays.length - alreadySavedNameDays})"),
 							backgroundColor: Colors.blue
 						)
 					)
@@ -56,31 +64,51 @@ class SelectNameDaysState extends State<SelectNameDays> {
 	}
 
 	Widget loadListView() {
-		return Column(
-			children:[
-				Container(
-					padding: const EdgeInsets.all(20),
-					child: new Center(
-						child: TextField(
-							decoration: InputDecoration(
-								border: new OutlineInputBorder(
-									borderRadius: const BorderRadius.all(
-									    const Radius.circular(6),
-									)
-								),
-								hintText: 'Αναζήτηση Ονομαστικής Εορτής',
-							),
-							controller: searchNdayCtrl,
-							onChanged: (text) {
-								setState(() {});
-							},
-                            autofocus: true
+		return Stack(
+			alignment: Alignment.center,
+			children: [
+				Column(
+					children:[
+						Container(
+							padding: const EdgeInsets.all(20),
+							child: Center(
+								child: TextField(
+									decoration: InputDecoration(
+										border: OutlineInputBorder(
+											borderRadius: const BorderRadius.all(
+												const Radius.circular(6),
+											)
+										),
+										hintText: 'Αναζήτηση Ονομαστικής Εορτής'
+									),
+									controller: searchNdayCtrl,
+									onChanged: (text) {
+										setState(() {});
+									},
+									autofocus: true
+								)
+							)
+						),
+						Expanded(
+							child: loadNameDays()
+						),
+					]
+				),
+				displayedHypocorisms != null ?
+				Positioned(
+					top: 5,
+					child: Card(
+						child: Container(
+							alignment: Alignment.center,
+							height: 100,
+							padding: const EdgeInsets.all(20),
+							width: MediaQuery.of(context).size.width - 40,
+							child: Text(displayedHypocorisms, textAlign: TextAlign.center)
 						)
 					)
-				),
-				Expanded(
-					child: loadNameDays()
 				)
+				:
+				SizedBox.shrink()
 			]
 		);
 	}
@@ -101,57 +129,30 @@ class SelectNameDaysState extends State<SelectNameDays> {
 		final bool alreadySelected = selectedNameDays != null ? selectedNameDays.contains(pair) : false;
 		final bool alreadySaved = selectedNameDays != null ? (selectedNameDays.indexOf(pair) == -1 ? false : selectedNameDays[selectedNameDays.indexOf(pair)].eventID != null) : false;
 
-		if (pair.hypocorisms.isNotEmpty) {
-			return new Tooltip(
-				margin:  const EdgeInsets.fromLTRB(20, 5, 20, 0),
-				textStyle:  const TextStyle(color: Colors.black),
-				decoration: BoxDecoration(
-					color: Colors.white,
-					border: Border.all(color: Colors.black, width: 3),
-					borderRadius: BorderRadius.all(Radius.circular(6))
-				),
-				message: pair.hypocorisms,
-				child: ListTile(
-					leading: Checkbox(
-						value: alreadySelected,
-						onChanged: null,
-					),
-					title: Text(
-						pair.name,
-						style: fontSize18,
-					),
-					trailing: Text(
-						pair.date
-					),
-					enabled: !alreadySaved,
-					onTap: () {
-						setState(() {
-							alreadySelected ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
-						});
-					},
-				)
-			);
-		} else {
-			return new ListTile(
+		return GestureDetector(
+			child: ListTile(
 				leading: Checkbox(
 					value: alreadySelected,
-					onChanged: null,
+					onChanged: null
 				),
-				title: Text(
-					pair.name,
-					style: fontSize18,
-				),
-				trailing: Text(
-					pair.date
-				),
+				title: Text(pair.name),
+				trailing: Text(pair.date),
 				enabled: !alreadySaved,
 				onTap: () {
 					setState(() {
 						alreadySelected ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
 					});
-				},
-			);
-		}
+				}
+			),
+			onLongPress: pair.hypocorisms.isEmpty ? null : () {
+				displayedHypocorisms = pair.hypocorisms;
+				setState(() { });
+			},
+			onLongPressUp: pair.hypocorisms.isEmpty ? null : () {
+				displayedHypocorisms = null;
+				setState(() { });
+			}
+		);
 	}
 }
 
