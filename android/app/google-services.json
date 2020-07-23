@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "590967760433",
+    "firebase_url": "https://namedays-x-calendar.firebaseio.com",
+    "project_id": "namedays-x-calendar",
+    "storage_bucket": "namedays-x-calendar.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:590967760433:android:a4061d6dd79d4a92581710",
+        "android_client_info": {
+          "package_name": "com.zirconworks.namedaysxcalendar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "590967760433-up3dm4638d1b8cjfosrnek6ls6amkgo5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAelS6aDfFDH460bPcHWlnlRSXXrUJIRWA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "590967760433-up3dm4638d1b8cjfosrnek6ls6amkgo5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

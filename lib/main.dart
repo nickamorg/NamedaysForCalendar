@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'SelectionScreen.dart';
 import 'NameDay.dart';
+import 'push_nofitications.dart';
 
 void main() => runApp(MyApp());
 
@@ -30,6 +31,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	String displayedHypocorisms;
 	bool isButtonLocked = false;
 	bool isAppLoaded = false;
+	PushNotificationsManager pushNotificationsManager;
 	
 	@override
 	void initState() {
@@ -37,6 +39,8 @@ class SavedNameDaysState extends State<SavedNameDays> {
 
 		displayedHypocorisms = null;
 		lastYearSavedNameDays = List<NameDay>();
+		pushNotificationsManager = PushNotificationsManager();
+		pushNotificationsManager.init();
         NameDays();
 		loadSavedNameDays();
 	}
