@@ -131,4 +131,12 @@ class NameDays {
             month = 5;
         }
     }
+
+	static NameDay findNameDayByName(String name) {
+		for (int i = 0; i < nameDaysList.length; i++) {
+			if (nameDaysList[i].name == name) return nameDaysList[i];
+		}
+
+		return null;
+	}
 }

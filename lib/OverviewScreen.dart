@@ -76,7 +76,7 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                         Icon(Icons.check, color: Colors.white),
-                                        Text("Προστέθηκαν", style: TextStyle(color: Colors.white))
+                                        Text('Προστέθηκαν', style: TextStyle(color: Colors.white))
                                     ]
                                 ),
                                 decoration: BoxDecoration(

@@ -42,16 +42,16 @@ class SelectNameDaysState extends State<SelectNameDays> {
 			),
 			body: loadListView(),
 			floatingActionButton: AnimatedOpacity(
-						opacity: selectedNameDays.length > alreadySavedNameDays ? 1 : 0,
-						duration: Duration(milliseconds: 500),
-						child: FloatingActionButton.extended(
-							onPressed: selectedNameDays.length <= alreadySavedNameDays ? null : selectNameDays,
-							icon: Icon(Icons.format_list_numbered),
-							label: Text("Επιλογή (${selectedNameDays.length - alreadySavedNameDays})"),
-							backgroundColor: Colors.blue
-						)
-					)
-			);
+				opacity: selectedNameDays.length > alreadySavedNameDays ? 1 : 0,
+				duration: Duration(milliseconds: 500),
+				child: FloatingActionButton.extended(
+					onPressed: selectedNameDays.length <= alreadySavedNameDays ? null : selectNameDays,
+					icon: Icon(Icons.format_list_numbered),
+					label: Text('Επιλογή (${selectedNameDays.length - alreadySavedNameDays})'),
+					backgroundColor: Colors.blue
+				)
+			)
+		);
 	}
 
 	void selectNameDays() {
@@ -91,7 +91,7 @@ class SelectNameDaysState extends State<SelectNameDays> {
 						),
 						Expanded(
 							child: loadNameDays()
-						),
+						)
 					]
 				),
 				displayedHypocorisms != null ?
