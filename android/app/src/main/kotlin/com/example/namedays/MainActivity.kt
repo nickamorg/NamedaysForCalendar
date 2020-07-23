@@ -1,4 +1,4 @@
-package com.example.namedays
+package com.zirconworks.namedaysxcalendar
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

@@ -51,17 +51,21 @@ class SavedNameDaysState extends State<SavedNameDays> {
 		if (calendarPermission == Permission.NON_GRANTED) return null;
 
 		if (calendarPermission == Permission.REGECTED) {
-			return FloatingActionButton(
-				onPressed: () {
-					new DeviceCalendarPlugin().requestPermissions().then((val) {
-						if (val.data != null && val.data) {
-							readCalendarEvents();
-						}
-					});
-				},
-				tooltip: 'Άδεια Χρήσης Ημερολογίου',
-				child: Icon(Icons.perm_contact_calendar),
-				backgroundColor: Colors.blue
+			return 	Tooltip(
+				message: "Άδεια Χρήσης Ημερολογίου",
+				padding: const EdgeInsets.all(10),
+				margin: const EdgeInsets.only(bottom: 10),
+				child: FloatingActionButton(
+					onPressed: () {
+						new DeviceCalendarPlugin().requestPermissions().then((val) {
+							if (val.data != null && val.data) {
+								readCalendarEvents();
+							}
+						});
+					},
+					child: Icon(Icons.perm_contact_calendar),
+					backgroundColor: Colors.blue
+				)
 			);
 		}
 
@@ -71,39 +75,54 @@ class SavedNameDaysState extends State<SavedNameDays> {
 					padding: EdgeInsets.only(left:31),
 					child: Align(
 						alignment: Alignment.bottomLeft,
-						child: Visibility(
-							child:FloatingActionButton(
-								backgroundColor: Colors.red,
-								onPressed: () {
-									setState(() {
-										deleteNameDayEvents();
-									});
-								},
-                                tooltip: 'Διαγραφή Επιλεγμένων Εορτών',
-								child: Icon(Icons.delete)
-							),
-							visible: selectedNameDays.length > 0
+						child: AnimatedOpacity(
+							opacity: selectedNameDays.length > 0 ? 1.0 : 0.0,
+							duration: Duration(milliseconds: 500),
+							child: Tooltip(
+								message: "Διαγραφή Επιλεγμένων Εορτών",
+								padding: const EdgeInsets.all(10),
+								margin: const EdgeInsets.only(bottom: 10),
+								child: FloatingActionButton(
+									heroTag: "deleteNameDays",
+									backgroundColor: Colors.red,
+									onPressed: selectedNameDays.length == 0 ? null : () {
+										setState(() {
+											deleteNameDayEvents();
+										});
+									},
+									child: Icon(Icons.delete)
+								)
+							)
 						)
 					)
 				),
 				Align(
 					alignment: Alignment.bottomRight,
-					child: FloatingActionButton(
-						onPressed: (() {
-							setState(() {
-								selectedNameDays.clear();
-							});
+					child: AnimatedOpacity(
+						opacity: selectedNameDays.length == 0 ? 1.0 : 0.0,
+						duration: Duration(milliseconds: 500),
+						child: Tooltip(
+							message: "Προσθήκη Εορτών",
+							padding: const EdgeInsets.all(10),
+							margin: const EdgeInsets.only(bottom: 10),
+							child: FloatingActionButton(
+								heroTag: "addNameDays",
+								onPressed: selectedNameDays.length > 0 ? null : (() {
+									setState(() {
+										selectedNameDays.clear();
+									});
 
-							Navigator.push(
-								context,
-								MaterialPageRoute(
-									builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNameDays
-								),
-							)).then((val) => loadSavedNameDays());
-						}),
-					    child: Icon(Icons.add),
-                        tooltip: 'Προσθήκη Εορτών'
-                    )
+									Navigator.push(
+										context,
+										MaterialPageRoute(
+											builder: (context) => SelectionScreen(calendarID: calendarID, selectedNameDays: savedNameDays
+										),
+									)).then((val) => loadSavedNameDays());
+								}),
+								child: Icon(Icons.add)
+							),
+						)
+					)
 				)
 			]
 		);
