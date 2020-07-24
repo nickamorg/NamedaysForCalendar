@@ -140,7 +140,7 @@ class SelectNameDaysState extends State<SelectNameDays> {
 				enabled: !alreadySaved,
 				onTap: () {
 					setState(() {
-						alreadySelected ? selectedNameDays.remove(pair) : selectedNameDays.add(pair);
+						alreadySelected ? selectedNameDays.remove(pair) : selectedNameDays.add(NameDay(name: pair.name, date: pair.date, hypocorisms: pair.hypocorisms));
 					});
 				}
 			),

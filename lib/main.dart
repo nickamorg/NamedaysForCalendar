@@ -317,6 +317,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 		lockWhileDeleting = true;
 		selectedNameDays.forEach((nameDay) {
 			calendarAPI.deleteEvent(calendarID, nameDay.eventID).then((value) {
+				counter--;
 				if (value.data) savedNameDays.remove(nameDay);
 				if (counter == 0) lockWhileDeleting = false;
 			});

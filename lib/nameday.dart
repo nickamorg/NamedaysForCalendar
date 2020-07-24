@@ -6,7 +6,7 @@ class Normalizer {
 	static List<List<String>> letters = [['ά', 'α'], ['έ', 'ε'], ['ή', 'η'], ['ί', 'ι'], ['ό', 'ο'], ['ύ', 'υ'], ['ώ', 'ω']];
 
 	static String normalize(String str) {
-		letters.forEach((letter) => str = str.replaceAll(letter[0], letter[1]));
+		letters.forEach((letter) => str = str.toLowerCase().replaceAll(letter[0], letter[1]));
 
 		return str;
 	}
@@ -26,9 +26,9 @@ class NameDay {
   	int get hashCode => name.hashCode ^ name.hashCode ^ hypocorisms.hashCode;
 
 	bool operator > (String other) {
-		String substring = Normalizer.normalize(other.toLowerCase());
-		String newName = Normalizer.normalize(name.toLowerCase());
-		String newHypocorisms = Normalizer.normalize(hypocorisms.toLowerCase());
+		String substring = Normalizer.normalize(other);
+		String newName = Normalizer.normalize(name);
+		String newHypocorisms = Normalizer.normalize(hypocorisms);
 
 		return newName.startsWith(substring) || newHypocorisms.startsWith(substring) || newHypocorisms.contains(', ' + substring) || date.contains(substring);
 	}
@@ -117,7 +117,7 @@ class NameDays {
             });
 
             nameDaysList.sort((a, b) {
-                return a.name.compareTo(b.name);
+                return Normalizer.normalize(a.name).compareTo(Normalizer.normalize(b.name));
             });
         });
     }
