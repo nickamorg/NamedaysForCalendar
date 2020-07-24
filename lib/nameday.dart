@@ -132,11 +132,15 @@ class NameDays {
         }
     }
 
-	static NameDay findNameDayByName(String name) {
-		for (int i = 0; i < nameDaysList.length; i++) {
-			if (nameDaysList[i].name == name) return nameDaysList[i];
+	static NameDay findNameDayByName(NameDay nameDay) {
+		List<NameDay> nameDays = nameDaysList.where((element) => element.name == nameDay.name).toList();
+
+		if (nameDays.length == 1) return nameDays[0];
+
+		for (int i = 0; i < nameDays.length; i++) {
+			if (nameDays[i].date.startsWith(nameDay.date.substring(5))) return nameDays[i];
 		}
 
-		return null;
+		return nameDays[0];
 	}
 }

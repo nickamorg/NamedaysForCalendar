@@ -29,8 +29,9 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	Permission calendarPermission = Permission.NON_GRANTED;
 	String calendarID;
 	String displayedHypocorisms;
-	bool isButtonLocked = false;
+	bool lockWhileSynchronizing = false;
 	bool isAppLoaded = false;
+	bool lockWhileDeleting = false;
 	PushNotificationsManager pushNotificationsManager;
 	
 	@override
@@ -92,7 +93,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 								)
 							)
 						),
-						isButtonLocked ? Center(
+						lockWhileSynchronizing ? Center(
 							child: Container(
 								height: 50,
 								width: 50,
@@ -177,7 +178,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 								child: FloatingActionButton(
 									heroTag: 'deleteNameDays',
 									backgroundColor: Colors.red,
-									onPressed: selectedNameDays.length == 0 ? null : () {
+									onPressed: lockWhileDeleting || selectedNameDays.length == 0 ? null : () {
 										setState(() {
 											deleteNameDayEvents();
 										});
@@ -312,9 +313,13 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	}
 
 	void deleteNameDayEvents() {
+		int counter = selectedNameDays.length;
+		lockWhileDeleting = true;
 		selectedNameDays.forEach((nameDay) {
-			calendarAPI.deleteEvent(calendarID, nameDay.eventID);
-			savedNameDays.remove(nameDay);
+			calendarAPI.deleteEvent(calendarID, nameDay.eventID).then((value) {
+				if (value.data) savedNameDays.remove(nameDay);
+				if (counter == 0) lockWhileDeleting = false;
+			});
 		});
 
 		selectedNameDays.clear();
@@ -359,6 +364,8 @@ class SavedNameDaysState extends State<SavedNameDays> {
 					  isAppLoaded = true;
 					});
 
+					lastYearSavedNameDays = [];
+
 					val.data.forEach((event) {
 						if (event.title.contains('🎂 Ονομαστική Εορτή: ') && event.start.year == year) {
 							String name = event.title.split(' ')[event.title.split(' ').length - 1];
@@ -378,10 +385,10 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	void syncronizeCalendar() {
 		Event event = Event(calendarID);
 		int counter = lastYearSavedNameDays.length;
-		isButtonLocked = true;
+		lockWhileSynchronizing = true;
 
 		lastYearSavedNameDays.forEach((nameDay) {
-			NameDay currNameDay = NameDays.findNameDayByName(nameDay.name);
+			NameDay currNameDay = NameDays.findNameDayByName(nameDay);
 
 			event.title = '🎂 Ονομαστική Εορτή: ${currNameDay.name}';
 			event.description = 'Επίσης γιορτάζουν οι: ${currNameDay.hypocorisms}';
@@ -405,7 +412,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 
 				if (counter == 0) {
 					setState(() {
-					  isButtonLocked = false;
+					  lockWhileSynchronizing = false;
 					});
 				}
             });

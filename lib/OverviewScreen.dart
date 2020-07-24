@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:device_calendar/device_calendar.dart';
-import 'main.dart';
 import 'NameDay.dart';
 
 class OverviewScreen extends StatelessWidget {
@@ -141,7 +140,7 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
             if (nameDay.eventID != null) return;
 
 			event.title = '🎂 Ονομαστική Εορτή: ${nameDay.name}';
-			event.description = 'Επίσης γιορτάζουν οι: ${nameDay.hypocorisms}';
+			event.description = nameDay.hypocorisms.isEmpty ? 'Ευχηθείτε του Χρόνια Πολλά!' : 'Επίσης γιορτάζουν οι: ${nameDay.hypocorisms}';
 
 			int year = int.parse(nameDay.date.split('-')[2]);
 			int month = int.parse(nameDay.date.split('-')[1]);
@@ -202,12 +201,6 @@ class OverviewNameDaysState extends State<OverviewNameDays> {
                                 if (areSaved) {
                                     Navigator.of(context).pop(true);
                                     Navigator.of(context).pop(true);
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => MyApp()
-                                        )
-                                    );
                                 }
 							}
 						)
