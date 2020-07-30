@@ -50,18 +50,17 @@ class SavedNameDaysState extends State<SavedNameDays> {
 	Widget build(BuildContext context) {
 		return Scaffold(
 			appBar: AppBar(
-				title: Text(!isAppLoaded ? '' : calendarPermission != Permission.GRANTED ? 'Εορτολόγιο' : 'Αποθηκευμένες Εορτές')
-			),
-			body: !isAppLoaded ? Center(
-				child: Container(
-					height: 50,
-					width: 50,
-					child: CircularProgressIndicator(
-						valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-						strokeWidth: 10
+				title: Text(!isAppLoaded ? '' : calendarPermission != Permission.GRANTED ? 'Εορτολόγιο' : 'Αποθηκευμένες Εορτές'),
+				actions: [
+					IconButton(
+						tooltip: "Πολιτική Απορρήτου",
+						icon: Icon(Icons.info),
+						onPressed: privacyPolicyDialog
 					)
-				)
-			)
+				]
+			),
+			body: !isAppLoaded ?
+            SizedBox.shrink()
 			:
 			savedNameDays.length == 0 && calendarPermission != Permission.REGECTED?
 			lastYearSavedNameDays.length == 0 ?
@@ -338,6 +337,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 			if (calendarID == null) {
 				setState(() {
 					noCalendarAvailableDialog(context);
+					isAppLoaded = true;
 				});
 
 				return;
@@ -420,6 +420,26 @@ class SavedNameDaysState extends State<SavedNameDays> {
 		});
 
 		setState(() {});
+	}
+
+	void privacyPolicyDialog() {
+		showDialog<bool>(
+			context: context,
+			builder: (BuildContext context) {
+				return AlertDialog(
+					title: Text('Πολιτική Απορρήτου', textAlign: TextAlign.center),
+					content: Text('Η εφαρμογή χρησιμοποιεί το ημερολόγιο για την δημιουργία γεγονότων και προβολή ή διαγραφή γεγονότων, τα οποία έχουν δημιουργηθεί διαμέσου αυτής της εφαρμογής.\n\nΔεν συλλέγει, τροποποιεί, επεξεργάζεται ή διαγράφει κανένα άλλο γεγονός ή προσωπικό δεδομένο.', textAlign: TextAlign.center),
+					actions: [
+						FlatButton(
+							child: Text('Εντάξει'),
+							onPressed: () {
+								Navigator.of(context).pop(true);
+							}
+						)
+					]
+				);
+			}
+		);
 	}
 }
 
