@@ -85,7 +85,7 @@ class SavedNameDaysState extends State<SavedNameDays> {
 							child: Container(
 								padding: const EdgeInsets.all(20),
 								child: Text(
-									'Δεν βρέθηκε καμία αποθηκευμένη εορτή για το τρέχων έτος στο ημερολόγιο.\n\n' +
+									'Δεν βρέθηκε καμία αποθηκευμένη εορτή για το τρέχoν έτος στο ημερολόγιο.\n\n' +
 									'Μπορείτε να συγχρονίσετε το ημερολόγιο από τις καταχωρήσεις του περασμένου έτους.',
 									style: fontSize18,
 									textAlign: TextAlign.center
